@@ -2,8 +2,10 @@
 import TransactionCard from "@/components/TransactionCard.vue";
 
 import {onMounted, ref, watch} from "vue"
-import FormComponent from "@/components/FormComponent.vue";
 import type {EntityProps} from "@/types.ts";
+import MainLayout from "@/layouts/MainLayout.vue";
+import MainPage from "@/components/MainPage.vue";
+import Dashboard from "@/components/Dashboard/Dashboard.vue";
 
 const STORAGE_KEY = "entities"
 
@@ -55,9 +57,10 @@ function handleSubmit(form: Omit<EntityProps, "id">) {
   <header>
   </header>
 
-  <main>
+  <MainLayout>
     <div class="container">
-      <FormComponent @onSubmit="handleSubmit"/>
+      <MainPage/>
+      <Dashboard @onSubmit="handleSubmit"/>
       <div class="transaction-container">
         <div class="transaction-list">
           <div
@@ -70,7 +73,7 @@ function handleSubmit(form: Omit<EntityProps, "id">) {
       </div>
 
     </div>
-  </main>
+  </MainLayout>
 </template>
 
 <style scoped>

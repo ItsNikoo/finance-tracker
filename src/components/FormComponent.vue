@@ -68,7 +68,7 @@ function handleSubmit() {
   gap: 10px;
 
   padding: 30px;
-  margin: 30px;
+  margin: 20px;
 
   width: 100%;
   max-width: 420px;
@@ -76,6 +76,12 @@ function handleSubmit() {
   background: white;
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  transition: 0.2s ease;
+}
+
+.form:hover{
+  box-shadow: rgba(30, 87, 61, 0.25) 0 0 20px;
+  transform: translateY(-2px);
 }
 
 .form-title {
@@ -128,8 +134,8 @@ function handleSubmit() {
 }
 
 .form-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 3px 20px rgba(22, 70, 51, 0.51);
+  box-shadow: rgba(30, 87, 61, 0.5) 0 0 30px;
+  transition: 300ms;
 }
 
 .form-button:active {
