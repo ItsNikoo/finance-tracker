@@ -1,25 +1,37 @@
 <script setup lang="ts">
+import {computed} from "vue";
+
 const props = defineProps<{
-  amount: number,
-  isIncome: boolean,
+  totalIncome: number,
+  totalExpenses: number
 }>()
+
+const totalBalance = computed(() => {
+  return props.totalIncome - props.totalExpenses
+})
+
+const isPositive = computed(() => {
+  return props.totalIncome - props.totalExpenses > 0;
+
+})
 </script>
 
 <template>
   <div class="income-card">
     <div class="header">
-      <span class="income-label">{{props.isIncome ? "Поступлений" : "Трат"}}</span>
-      <span
-        class="income-badge"
-        :class="{ income: props.isIncome, expense: !props.isIncome }"
-      >{{props.isIncome ? "+ Доход" : "- Расход"}}</span>
+      <span class="income-label">Общее материальное положение</span>
+      <!--      <span-->
+      <!--        class="income-badge"-->
+      <!--        :class="{ income: props.isIncome, expense: !props.isIncome }"-->
+      <!--      >{{ props.isIncome ? "+ Доход" : "- Расход" }}</span>-->
     </div>
 
     <div
       class="income-amount"
-      :class="{ income: props.isIncome, expense: !props.isIncome }"
+      :class="{ income: isPositive, expense: !isPositive }"
     >
-      {{ props.amount.toLocaleString() }} ₽
+      <!--      :class="{ income: props.isIncome, expense: !props.isIncome }"-->
+      {{ totalBalance }} ₽
     </div>
 
   </div>
@@ -30,7 +42,6 @@ const props = defineProps<{
   background: white;
   border-radius: 16px;
   padding: 24px;
-  margin: 20px;
 
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
 
@@ -60,15 +71,6 @@ const props = defineProps<{
   font-weight: 500;
 }
 
-.income-badge {
-  font-size: 12px;
-  background: rgba(42, 121, 86, 0.1);
-  color: #2A7956;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-weight: 600;
-}
-
 .income-amount {
   margin-top: 20px;
   font-size: 28px;
@@ -83,5 +85,4 @@ const props = defineProps<{
 .expense {
   color: #d9534f;
 }
-
 </style>

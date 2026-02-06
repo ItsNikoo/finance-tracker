@@ -1,20 +1,50 @@
 <script setup lang="ts">
-import {ref} from "vue";
+import {computed, ref, watch} from "vue";
 import type {EntityProps} from "@/types.ts";
+import {categories} from "@/categories.ts";
 
 const form = ref<Omit<EntityProps, "id">>({
   title: '',
   amount: 0,
   isIncome: false,
+  categoryId: '' as string,
 })
+
+const error = ref<string | null>(null)
 
 const emit = defineEmits<{
   (e: "onSubmit", form: Omit<EntityProps, "id">): void
 }>()
 
+const availableCategories = computed(() => {
+  return categories.filter(category =>
+    form.value.isIncome
+      ? category.type === 'income'
+      : category.type === 'expense'
+  )
+})
+
+watch(
+  () => form.value.isIncome,
+  () => form.value.categoryId = ''
+)
+
 function handleSubmit() {
+  if (form.value.title.trim() === ""){
+    error.value = "Выберите описание транзакции"
+    return
+  }
+  if (form.value.amount <= 0){
+    error.value = "Сумма транзакции должна быть больше 0"
+    return
+  }
+  if (!form.value.categoryId) {
+    error.value = "Выберите категорию"
+    return
+  }
   emit("onSubmit", form.value)
-  form.value = {title: "", amount: 0, isIncome: false}
+  error.value = null
+  form.value = {title: "", amount: 0, isIncome: false, categoryId: ''}
 }
 </script>
 
@@ -37,10 +67,25 @@ function handleSubmit() {
         class="form-input"
       />
 
-      <label class="checkbox-wrapper">
-        <input type="checkbox" v-model="form.isIncome"/>
-        <span>Пополнение</span>
-      </label>
+      <select v-model="form.isIncome" class="form-input">
+        <option :value="false">Расход</option>
+        <option :value="true">Доход</option>
+      </select>
+
+      <select
+        v-model="form.categoryId"
+        class="form-input">
+        <option value="" disabled selected>Выберите категорию</option>
+        <option
+          v-for="c in availableCategories"
+          :key="c.id"
+          :value="c.id"
+        >
+          {{ c.name }}
+        </option>
+      </select>
+
+      <p class="error-alert">{{ error }}</p>
 
       <button
         type="button"
@@ -68,7 +113,6 @@ function handleSubmit() {
   gap: 10px;
 
   padding: 30px;
-  margin: 20px;
 
   width: 100%;
   max-width: 420px;
@@ -79,7 +123,7 @@ function handleSubmit() {
   transition: 0.2s ease;
 }
 
-.form:hover{
+.form:hover {
   box-shadow: rgba(30, 87, 61, 0.25) 0 0 20px;
   transform: translateY(-2px);
 }
@@ -140,5 +184,11 @@ function handleSubmit() {
 
 .form-button:active {
   transform: translateY(0);
+}
+
+.error-alert{
+  font-style: italic;
+  font-size: 14px;
+  color: #d9534f;
 }
 </style>
