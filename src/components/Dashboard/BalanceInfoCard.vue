@@ -8,11 +8,11 @@ const props = defineProps<{
 <template>
   <div class="income-card">
     <div class="header">
-      <span class="income-label">{{props.isIncome ? "Поступлений" : "Трат"}}</span>
+      <span class="income-label">{{ props.isIncome ? "Поступлений" : "Трат" }}</span>
       <span
         class="income-badge"
         :class="{ income: props.isIncome, expense: !props.isIncome }"
-      >{{props.isIncome ? "+ Доход" : "- Расход"}}</span>
+      >{{ props.isIncome ? "+ Доход" : "- Расход" }}</span>
     </div>
 
     <div

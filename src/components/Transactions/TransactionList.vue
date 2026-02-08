@@ -1,21 +1,18 @@
 <script setup lang="ts">
-import type {EntityProps} from "@/types.ts";
 import TransactionCard from "@/components/Transactions/TransactionCard.vue";
+import {useTransactionsStore} from "@/stores/transactions.ts";
 
-const props = defineProps<{
-  transactions: EntityProps[],
-  onDelete?: (id: number) => void
-}>()
 
+const store = useTransactionsStore()
 </script>
 
 <template>
   <div class="transaction-list">
     <div
-      v-for="transaction in [...props.transactions].reverse()"
+      v-for="transaction in [...store.transactions].reverse()"
       :key="transaction.id"
     >
-      <TransactionCard :on-delete="onDelete" :transaction="transaction"/>
+      <TransactionCard :transaction="transaction"/>
     </div>
   </div>
 </template>

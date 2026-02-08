@@ -2,6 +2,7 @@
 import {computed, ref, watch} from "vue";
 import type {EntityProps} from "@/types.ts";
 import {categories} from "@/categories.ts";
+import {useTransactionsStore} from "@/stores/transactions.ts";
 
 const form = ref<Omit<EntityProps, "id">>({
   title: '',
@@ -12,9 +13,7 @@ const form = ref<Omit<EntityProps, "id">>({
 
 const error = ref<string | null>(null)
 
-const emit = defineEmits<{
-  (e: "onSubmit", form: Omit<EntityProps, "id">): void
-}>()
+const store = useTransactionsStore()
 
 const availableCategories = computed(() => {
   return categories.filter(category =>
@@ -42,7 +41,7 @@ function handleSubmit() {
     error.value = "Выберите категорию"
     return
   }
-  emit("onSubmit", form.value)
+  store.addTransaction(form.value)
   error.value = null
   form.value = {title: "", amount: 0, isIncome: false, categoryId: ''}
 }

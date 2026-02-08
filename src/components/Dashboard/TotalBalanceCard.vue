@@ -1,17 +1,16 @@
 <script setup lang="ts">
 import {computed} from "vue";
+import {useTransactionsStore} from "@/stores/transactions.ts";
 
-const props = defineProps<{
-  totalIncome: number,
-  totalExpenses: number
-}>()
+
+const store = useTransactionsStore()
 
 const totalBalance = computed(() => {
-  return props.totalIncome - props.totalExpenses
+  return store.totalIncome - store.totalExpenses
 })
 
 const isPositive = computed(() => {
-  return props.totalIncome - props.totalExpenses > 0;
+  return store.totalIncome - store.totalExpenses > 0;
 
 })
 </script>
@@ -20,17 +19,12 @@ const isPositive = computed(() => {
   <div class="income-card">
     <div class="header">
       <span class="income-label">Общее материальное положение</span>
-      <!--      <span-->
-      <!--        class="income-badge"-->
-      <!--        :class="{ income: props.isIncome, expense: !props.isIncome }"-->
-      <!--      >{{ props.isIncome ? "+ Доход" : "- Расход" }}</span>-->
     </div>
 
     <div
       class="income-amount"
       :class="{ income: isPositive, expense: !isPositive }"
     >
-      <!--      :class="{ income: props.isIncome, expense: !props.isIncome }"-->
       {{ totalBalance }} ₽
     </div>
 

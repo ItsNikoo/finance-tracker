@@ -1,38 +1,24 @@
 <script setup lang="ts">
 import FormComponent from "@/components/FormComponent.vue";
-import type {EntityProps} from "@/types.ts";
 import BalanceInfoCard from "@/components/Dashboard/BalanceInfoCard.vue";
 import TotalBalanceCard from "@/components/Dashboard/TotalBalanceCard.vue";
 import TransactionList from "@/components/Transactions/TransactionList.vue";
+import {useTransactionsStore} from "@/stores/transactions.ts";
 
-const props = defineProps<{
-  totalIncome: number,
-  totalExpenses: number,
-  transactions: EntityProps[],
-  onDelete?: (id: number) => void
-}>()
-
-const emit = defineEmits<{
-  (e: "onSubmit", form: Omit<EntityProps, "id">): void
-}>()
-
-function handleSubmit(form: Omit<EntityProps, "id">): void {
-  emit("onSubmit", form);
-}
-
+const store = useTransactionsStore()
 </script>
 
 <template>
   <div class="dashboard">
     <div class="dashboard-row top-row">
-      <FormComponent @onSubmit="handleSubmit"/>
-      <TotalBalanceCard :totalIncome="props.totalIncome" :totalExpenses="props.totalExpenses" />
-      <BalanceInfoCard :amount="props.totalIncome" :isIncome="true"/>
-      <BalanceInfoCard :amount="props.totalExpenses" :isIncome="false"/>
+      <FormComponent/>
+      <TotalBalanceCard/>
+      <BalanceInfoCard :amount="store.totalIncome" :isIncome="true"/>
+      <BalanceInfoCard :amount="store.totalExpenses" :isIncome="false"/>
     </div>
 
     <div class="dashboard-row bottom-row">
-      <TransactionList :on-delete="onDelete" :transactions="props.transactions" />
+      <TransactionList :on-delete="store.deleteTransaction" :transactions="store.transactions"/>
       <div class="grid-container">2</div>
     </div>
   </div>

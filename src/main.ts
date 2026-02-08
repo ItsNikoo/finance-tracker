@@ -10,5 +10,10 @@ import '@fontsource/montserrat/400.css'
 import '@fontsource/montserrat/600.css'
 import '@fontsource/montserrat/700.css'
 import '@fontsource/montserrat/900.css'
+import {createPinia} from "pinia";
 
-createApp(App).mount('#app')
+const app = createApp(App)
+const pinia = createPinia()
+
+app.use(pinia)
+app.mount('#app')

@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import type {EntityProps} from "@/types.ts";
+import {useTransactionsStore} from "@/stores/transactions.ts";
 
 const props = defineProps<{
   transaction: EntityProps
-  onDelete?: (id: number) => void
 }>()
 
+const store = useTransactionsStore()
+
 function handleDelete() {
-  if (props.onDelete) {
-    props.onDelete(props.transaction.id)
-  }
+  store.deleteTransaction(props.transaction.id)
 }
 </script>
 
