@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type {EntityProps} from "@/types.ts";
 import {useTransactionsStore} from "@/stores/transactions.ts";
+import {categories} from "@/categories.ts";
 
 const props = defineProps<{
   transaction: EntityProps
@@ -10,6 +11,10 @@ const store = useTransactionsStore()
 
 function handleDelete() {
   store.deleteTransaction(props.transaction.id)
+}
+
+function categoryTitleMapper(id: string) {
+  return categories.find(category => category.id === id)?.name
 }
 </script>
 
@@ -25,7 +30,7 @@ function handleDelete() {
           :class="props.transaction.isIncome ? 'dot-income' : 'dot-expense'"
         ></span>
         <span class="type-text">
-          {{ props.transaction.isIncome ? "Доход" : "Расход" }}
+          {{ props.transaction.isIncome ? "Доход" : "Расход" }} | {{ categoryTitleMapper(props.transaction.categoryId)}}
         </span>
       </div>
 
@@ -57,13 +62,13 @@ function handleDelete() {
   padding: 0 20px;
   min-height: 94px;
 
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-  transition: all 0.22s ease;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
   cursor: default;
 }
 
 .transaction-card:hover {
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.1);
 }
 
 /* ──────────────────────────────────────── */

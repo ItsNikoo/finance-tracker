@@ -4,6 +4,8 @@ import BalanceInfoCard from "@/components/Dashboard/BalanceInfoCard.vue";
 import TotalBalanceCard from "@/components/Dashboard/TotalBalanceCard.vue";
 import TransactionList from "@/components/Transactions/TransactionList.vue";
 import {useTransactionsStore} from "@/stores/transactions.ts";
+import ExpencesChart from "@/components/Charts/ExpencesChart.vue";
+
 
 const store = useTransactionsStore()
 </script>
@@ -19,7 +21,8 @@ const store = useTransactionsStore()
 
     <div class="dashboard-row bottom-row">
       <TransactionList :on-delete="store.deleteTransaction" :transactions="store.transactions"/>
-      <div class="grid-container">2</div>
+<!--      <div class="grid-container">2</div>-->
+      <ExpencesChart/>
     </div>
   </div>
 </template>

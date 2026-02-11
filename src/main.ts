@@ -11,9 +11,11 @@ import '@fontsource/montserrat/600.css'
 import '@fontsource/montserrat/700.css'
 import '@fontsource/montserrat/900.css'
 import {createPinia} from "pinia";
+import VueApexCharts from "vue3-apexcharts";
 
 const app = createApp(App)
 const pinia = createPinia()
 
 app.use(pinia)
+app.use(VueApexCharts)
 app.mount('#app')

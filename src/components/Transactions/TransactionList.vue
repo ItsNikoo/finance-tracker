@@ -19,6 +19,7 @@ const store = useTransactionsStore()
 
 <style scoped>
 .transaction-list {
+  padding: 20px;
   max-height: 520px;
 
   overflow-y: auto;

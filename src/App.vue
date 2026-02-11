@@ -2,9 +2,7 @@
 import MainLayout from "@/layouts/MainLayout.vue";
 import MainPage from "@/components/MainPage.vue";
 import Dashboard from "@/components/Dashboard/Dashboard.vue";
-import {useTransactionsStore} from "@/stores/transactions.ts";
 
-const store = useTransactionsStore()
 </script>
 
 <template>
