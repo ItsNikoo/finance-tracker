@@ -2,14 +2,14 @@
 import {useTransactionsStore} from "@/stores/transactions.ts";
 import {categories} from "@/categories.ts";
 import {computed} from "vue";
-import type {EntityProps} from "@/types.ts";
+import type {Transaction} from "@/types.ts";
 
 const store = useTransactionsStore()
 
 const expensesByCategory = computed(() => {
   const expenseMap = new Map<string, number>();
 
-  store.transactions.forEach((t: EntityProps) => {
+  store.transactions.forEach((t: Transaction) => {
     if (!t.isIncome && t.categoryId && t.amount > 0) {
       const current = expenseMap.get(t.categoryId) || 0
       expenseMap.set(t.categoryId, current + t.amount)

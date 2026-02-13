@@ -4,7 +4,7 @@ export interface Category {
   type: "income" | "expense"
 }
 
-export interface EntityProps {
+export interface Transaction {
   id: number
   title: string
   amount: number

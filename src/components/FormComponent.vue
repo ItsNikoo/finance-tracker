@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import {computed, ref, watch} from "vue";
-import type {EntityProps} from "@/types.ts";
+import type {Transaction} from "@/types.ts";
 import {categories} from "@/categories.ts";
 import {useTransactionsStore} from "@/stores/transactions.ts";
 
-const form = ref<Omit<EntityProps, "id">>({
+const form = ref<Omit<Transaction, "id">>({
   title: '',
   amount: 0,
   isIncome: false,
@@ -124,7 +124,6 @@ function handleSubmit() {
 
 .form:hover {
   box-shadow: rgba(30, 87, 61, 0.25) 0 0 20px;
-  transform: translateY(-2px);
 }
 
 .form-title {

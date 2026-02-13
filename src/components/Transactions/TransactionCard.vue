@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type {EntityProps} from "@/types.ts";
+import type {Transaction} from "@/types.ts";
 import {useTransactionsStore} from "@/stores/transactions.ts";
 import {categories} from "@/categories.ts";
 
 const props = defineProps<{
-  transaction: EntityProps
+  transaction: Transaction
 }>()
 
 const store = useTransactionsStore()

@@ -15,5 +15,6 @@ export const categories: Category[] = [
   {id: 'fun', name: 'Развлечения', type: 'expense'},
   {id: 'health', name: 'Здоровье', type: 'expense'},
   {id: 'expense', name: 'Перевод человеку', type: 'expense'},
+  {id: 'credit', name: "Кредитные задолженности", type: 'expense'},
   {id: 'other-exp', name: 'Другое', type: 'expense'},
 ]

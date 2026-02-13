@@ -1,12 +1,12 @@
 import {defineStore} from "pinia";
 import {computed, ref, watch} from "vue";
-import type {EntityProps} from "@/types.ts";
+import type {Transaction} from "@/types.ts";
 
 export const useTransactionsStore = defineStore("transactions", () => {
   // Состояние
   const STORAGE_KEY = "transactions"
 
-  const transactions = ref<EntityProps[]>([])
+  const transactions = ref<Transaction[]>([])
   let nextId = 1
 
   function loadDataFromLocalStorage() {
@@ -14,7 +14,7 @@ export const useTransactionsStore = defineStore("transactions", () => {
     if (!data) return
 
     try {
-      const parsed = JSON.parse(data) as EntityProps[]
+      const parsed = JSON.parse(data) as Transaction[]
       transactions.value = parsed
 
       if (parsed.length > 0) {
@@ -62,7 +62,7 @@ export const useTransactionsStore = defineStore("transactions", () => {
     return nextId++
   }
 
-  function addTransaction(form: Omit<EntityProps, "id">) {
+  function addTransaction(form: Omit<Transaction, "id">) {
     if (form.amount <= 0) return
 
     transactions.value.push({

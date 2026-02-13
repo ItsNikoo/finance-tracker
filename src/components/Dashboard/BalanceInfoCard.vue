@@ -43,7 +43,6 @@ const props = defineProps<{
 }
 
 .income-card:hover {
-  transform: translateY(-2px);
   box-shadow: rgba(30, 87, 61, 0.25) 0 0 20px;
 }
 

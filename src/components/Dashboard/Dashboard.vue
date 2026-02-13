@@ -4,7 +4,10 @@ import BalanceInfoCard from "@/components/Dashboard/BalanceInfoCard.vue";
 import TotalBalanceCard from "@/components/Dashboard/TotalBalanceCard.vue";
 import TransactionList from "@/components/Transactions/TransactionList.vue";
 import {useTransactionsStore} from "@/stores/transactions.ts";
-import ExpencesChart from "@/components/Charts/ExpencesChart.vue";
+import ExpencesPieChart from "@/components/Charts/ExpencesPieChart.vue";
+import ExpencesColumnChart from "@/components/Charts/ExpencesColumnChart.vue";
+import ChartToggle from "@/components/UI/ChartToggle.vue";
+import ExpencesChartsContainer from "@/components/Charts/ExpencesChartsContainer.vue";
 
 
 const store = useTransactionsStore()
@@ -21,8 +24,7 @@ const store = useTransactionsStore()
 
     <div class="dashboard-row bottom-row">
       <TransactionList :on-delete="store.deleteTransaction" :transactions="store.transactions"/>
-<!--      <div class="grid-container">2</div>-->
-      <ExpencesChart/>
+      <ExpencesChartsContainer/>
     </div>
   </div>
 </template>
@@ -45,14 +47,6 @@ const store = useTransactionsStore()
 
 .bottom-row {
   grid-template-columns: 1fr 1fr;
-}
-
-.grid-container {
-  background-color: pink;
-  border-radius: 16px;
-  padding: 20px;
-  text-align: center;
-  font-size: 2rem;
 }
 
 @media (max-width: 900px) {
