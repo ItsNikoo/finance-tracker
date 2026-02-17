@@ -10,4 +10,5 @@ export interface Transaction {
   amount: number
   isIncome: boolean
   categoryId: string
+  date: string
 }

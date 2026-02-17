@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {computed, ref, watch} from "vue";
 import type {Transaction} from "@/types.ts";
-import {categories} from "@/categories.ts";
+import {categories} from "@/lib/categories.ts";
 import {useTransactionsStore} from "@/stores/transactions.ts";
 
 const form = ref<Omit<Transaction, "id">>({

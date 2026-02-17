@@ -1,93 +1,127 @@
 <script setup lang="ts">
-import {useTransactionsStore} from "@/stores/transactions.ts";
-import {categories} from "@/categories.ts";
-import {computed} from "vue";
-import type {Transaction} from "@/types.ts";
+import { computed } from 'vue'
 
-const store = useTransactionsStore()
+// Принимаем данные через props
+const props = defineProps<{
+  labels: string[]
+  values: number[]
+  totalExpenses: number
+}>()
 
-const expensesByCategory = computed(() => {
-  const expenseMap = new Map<string, number>();
-
-  store.transactions.forEach((t: Transaction) => {
-    if (!t.isIncome && t.categoryId && t.amount > 0) {
-      const current = expenseMap.get(t.categoryId) || 0
-      expenseMap.set(t.categoryId, current + t.amount)
-    }
-  })
-  return expenseMap;
-})
-
-const chartSeries = computed(() => {
-  return Array.from(expensesByCategory.value.values())
-})
-
-const chartLabels = computed(() => {
-  return Array.from(expensesByCategory.value.keys()).map(catId => {
-    const cat = categories.find(c => c.id === catId)
-    return cat ? cat.name : catId  // fallback на id, если категория не найдена
-  })
-})
+const chartSeries = computed(() => props.values)
 
 const chartOptions = computed(() => ({
   chart: {
     type: 'donut',
     height: 350,
-    toolbar: { show: false },
+    toolbar: { show: false }
   },
-  labels: chartLabels.value,
+  labels: props.labels,
   legend: {
     position: 'bottom',
     fontSize: '14px',
+    offsetY: 0
   },
   dataLabels: {
     enabled: true,
-    formatter: (val: number) => Math.round(val) + "%",
+    formatter: (val: number) => Math.round(val) + '%'
   },
   tooltip: {
     y: {
-      formatter: (val: number) => val.toLocaleString('ru-RU') + " ₽",
-    },
+      formatter: (val: number) => val.toLocaleString('ru-RU') + ' ₽'
+    }
   },
   plotOptions: {
     pie: {
       donut: {
+        size: '65%',
         labels: {
           show: true,
           total: {
             show: true,
             label: 'Всего расходов',
-            formatter: () => store.totalExpenses.toLocaleString('ru-RU') + " ₽",
-          },
-        },
-      },
-    },
+            fontSize: '16px',
+            fontWeight: 600,
+            formatter: () => props.totalExpenses.toLocaleString('ru-RU') + ' ₽'
+          }
+        }
+      }
+    }
   },
-  responsive: [{
-    breakpoint: 480,
-    options: {
-      chart: { width: 320 },
-      legend: { position: 'bottom' },
+  // Адаптивность
+  responsive: [
+    {
+      breakpoint: 768,
+      options: {
+        chart: { height: 320 },
+        legend: {
+          fontSize: '13px',
+          position: 'bottom'
+        },
+        plotOptions: {
+          pie: {
+            donut: {
+              size: '60%',
+              labels: {
+                total: {
+                  fontSize: '14px'
+                }
+              }
+            }
+          }
+        }
+      }
     },
-  }],
+    {
+      breakpoint: 480,
+      options: {
+        chart: {
+          height: 300,
+          width: '100%'
+        },
+        legend: {
+          fontSize: '12px',
+          position: 'bottom'
+        },
+        plotOptions: {
+          pie: {
+            donut: {
+              size: '55%',
+              labels: {
+                total: {
+                  fontSize: '12px',
+                  label: 'Всего'
+                }
+              }
+            }
+          }
+        },
+        dataLabels: {
+          enabled: true,
+          style: {
+            fontSize: '10px'
+          }
+        }
+      }
+    }
+  ]
 }))
-
 </script>
 
 <template>
   <div class="expenses-chart">
     <h3 class="chart-title">Расходы по категориям</h3>
 
-    <div v-if="store.totalExpenses === 0" class="no-data">
+    <div v-if="totalExpenses === 0" class="no-data">
       Нет расходов за период
     </div>
 
     <apexchart
-      v-else
-      type="donut"
-      height="380"
-      :options="chartOptions"
-      :series="chartSeries"
+        v-else
+        type="donut"
+        height="380"
+        :options="chartOptions"
+        :series="chartSeries"
     />
   </div>
 </template>
@@ -112,5 +146,32 @@ const chartOptions = computed(() => ({
   color: #6b7280;
   padding: 40px 0;
   font-size: 16px;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .expenses-chart {
+    padding: 16px;
+  }
+
+  .chart-title {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .expenses-chart {
+    padding: 12px;
+  }
+
+  .chart-title {
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+
+  .no-data {
+    padding: 30px 0;
+    font-size: 14px;
+  }
 }
 </style>

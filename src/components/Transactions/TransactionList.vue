@@ -9,7 +9,7 @@ const store = useTransactionsStore()
 <template>
   <div class="transaction-list">
     <div
-      v-for="transaction in [...store.transactions].reverse()"
+      v-for="transaction in [...store.filteredTransactions].reverse()"
       :key="transaction.id"
     >
       <TransactionCard :transaction="transaction"/>
@@ -31,5 +31,11 @@ const store = useTransactionsStore()
 
   scrollbar-width: thin;
   scrollbar-color: #d1d5db #f3f4f6;
+}
+
+@media (max-width: 600px) {
+  .transaction-list {
+    padding: 5px;
+  }
 }
 </style>

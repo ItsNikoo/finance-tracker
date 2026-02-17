@@ -4,26 +4,25 @@ import BalanceInfoCard from "@/components/Dashboard/BalanceInfoCard.vue";
 import TotalBalanceCard from "@/components/Dashboard/TotalBalanceCard.vue";
 import TransactionList from "@/components/Transactions/TransactionList.vue";
 import {useTransactionsStore} from "@/stores/transactions.ts";
-import ExpencesPieChart from "@/components/Charts/ExpencesPieChart.vue";
-import ExpencesColumnChart from "@/components/Charts/ExpencesColumnChart.vue";
-import ChartToggle from "@/components/UI/ChartToggle.vue";
 import ExpencesChartsContainer from "@/components/Charts/ExpencesChartsContainer.vue";
-
+import MonthToggle from "@/components/UI/MonthToggle.vue";
 
 const store = useTransactionsStore()
 </script>
 
 <template>
   <div class="dashboard">
+    <MonthToggle/>
+
     <div class="dashboard-row top-row">
       <FormComponent/>
-      <TotalBalanceCard/>
-      <BalanceInfoCard :amount="store.totalIncome" :isIncome="true"/>
-      <BalanceInfoCard :amount="store.totalExpenses" :isIncome="false"/>
+      <TotalBalanceCard :balance="store.periodBalance"/>
+      <BalanceInfoCard :amount="store.periodIncome" :isIncome="true"/>
+      <BalanceInfoCard :amount="store.periodExpenses" :isIncome="false"/>
     </div>
 
     <div class="dashboard-row bottom-row">
-      <TransactionList :on-delete="store.deleteTransaction" :transactions="store.transactions"/>
+      <TransactionList :on-delete="store.deleteTransaction"/>
       <ExpencesChartsContainer/>
     </div>
   </div>

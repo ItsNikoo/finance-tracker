@@ -18,4 +18,10 @@ import Header from "@/components/Header.vue";
   margin: 0 auto;
   padding: 0 50px;
 }
+
+@media (max-width: 600px) {
+  .layout {
+    padding: 0 25px;
+  }
+}
 </style>

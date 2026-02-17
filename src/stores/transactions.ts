@@ -1,6 +1,7 @@
 import {defineStore} from "pinia";
 import {computed, ref, watch} from "vue";
 import type {Transaction} from "@/types.ts";
+import {generateMockTransactions} from "@/lib/mockGenerator.ts";
 
 export const useTransactionsStore = defineStore("transactions", () => {
   // Состояние
@@ -10,20 +11,40 @@ export const useTransactionsStore = defineStore("transactions", () => {
   let nextId = 1
 
   function loadDataFromLocalStorage() {
-    const data = localStorage.getItem(STORAGE_KEY)
-    if (!data) return
+    const data = localStorage.getItem(STORAGE_KEY);
 
-    try {
-      const parsed = JSON.parse(data) as Transaction[]
-      transactions.value = parsed
+    if (data) {
+      try {
+        const parsed = JSON.parse(data) as Transaction[];
+        transactions.value = parsed;
 
-      if (parsed.length > 0) {
-        const maxId = Math.max(...parsed.map(item => item.id))
-        nextId = maxId + 1
+        if (parsed.length > 0) {
+          const maxId = Math.max(...parsed.map(item => item.id));
+          nextId = maxId + 1;
+        }
+        return;
+      } catch (err) {
+        console.warn("Повреждённые данные → очищаем", err);
+        localStorage.removeItem(STORAGE_KEY);
       }
-    } catch (err) {
-      console.warn("Повреждённые данные в localStorage →", err)
     }
+
+    const mockGenerated = localStorage.getItem("mock_transactions_generated");
+
+    if (mockGenerated === "true") {
+      console.log("Моковые данные уже были сгенерированы ранее → пропускаем");
+      transactions.value = [];
+      return;
+    }
+
+    console.log("Генерируем mock-транзакции впервые...");
+    generateMockTransactions()
+
+    if (transactions.value.length > 0) {
+      nextId = Math.max(...transactions.value.map(t => t.id)) + 1;
+    }
+
+    localStorage.setItem("mock_transactions_generated", "true");
   }
 
   loadDataFromLocalStorage()
@@ -35,6 +56,12 @@ export const useTransactionsStore = defineStore("transactions", () => {
     },
     {deep: true}
   )
+
+  const selectedMonth = ref<number | 'all'>('all')
+
+  function setSelectedMonth(value: number | 'all') {
+    selectedMonth.value = value
+  }
 
   // Геттеры
   const totalIncome = computed(() => {
@@ -57,13 +84,91 @@ export const useTransactionsStore = defineStore("transactions", () => {
     return sum
   })
 
+  const groupedByMonth = computed(() => {
+    const map = new Map<number, {
+      month: number
+      title: string
+      income: number
+      expense: number
+      balance: number
+      transactions: Transaction[]
+    }>()
+
+    transactions.value.forEach(t => {
+      const monthNum = Number(t.date.split('-')[1]) // 01 → 1, 02 → 2, ...
+
+      if (!map.has(monthNum)) {
+        map.set(monthNum, {
+          month: monthNum,
+          title: new Date(2000, monthNum - 1, 1).toLocaleString('ru-RU', {month: 'long'}),
+          income: 0,
+          expense: 0,
+          balance: 0,
+          transactions: []
+        })
+      }
+
+      const group = map.get(monthNum)!
+      group.transactions.push(t)
+
+      if (t.isIncome) group.income += t.amount
+      else group.expense += t.amount
+      group.balance = group.income - group.expense
+    })
+
+    // Сортировка от декабря к январю (или наоборот)
+    return Array.from(map.values())
+      .sort((a, b) => b.month - a.month) // новые сверху
+  })
+
+  const filteredTransactions = computed(() => {
+    if (selectedMonth.value === 'all') {
+      return transactions.value
+    }
+
+    // Находим группу по выбранному месяцу
+    const group = groupedByMonth.value.find(g => g.month === selectedMonth.value)
+
+    return group ? group.transactions : []
+  })
+
+  const periodIncome = computed(() => {
+    if (selectedMonth.value === 'all') {
+      return totalIncome.value
+    }
+
+    // Используем уже подсчитанные данные из группы
+    const group = groupedByMonth.value.find(g => g.month === selectedMonth.value)
+    return group ? group.income : 0
+  })
+
+  const periodExpenses = computed(() => {
+    if (selectedMonth.value === 'all') {
+      return totalExpenses.value
+    }
+
+    const group = groupedByMonth.value.find(g => g.month === selectedMonth.value)
+    return group ? group.expense : 0
+  })
+
+  const periodBalance = computed(() => {
+    if (selectedMonth.value === 'all') {
+      return totalIncome.value - totalExpenses.value
+    }
+
+    const group = groupedByMonth.value.find(g => g.month === selectedMonth.value)
+    return group ? group.balance : 0
+  })
+
   // Действия
   function generateId(): number {
     return nextId++
   }
 
-  function addTransaction(form: Omit<Transaction, "id">) {
+  function addTransaction(form: Omit<Transaction, "id" | "date"> & { date: string }) {
     if (form.amount <= 0) return
+
+    const date: string = form.date ?? new Date().toISOString().split('T')[0]
 
     transactions.value.push({
       id: generateId(),
@@ -71,6 +176,7 @@ export const useTransactionsStore = defineStore("transactions", () => {
       amount: form.amount,
       isIncome: form.isIncome,
       categoryId: form.categoryId,
+      date,
     })
   }
 
@@ -82,7 +188,15 @@ export const useTransactionsStore = defineStore("transactions", () => {
     transactions,
     totalIncome,
     totalExpenses,
+    groupedByMonth,
     addTransaction,
     deleteTransaction,
+
+    selectedMonth,
+    setSelectedMonth,
+    filteredTransactions,
+    periodIncome,
+    periodExpenses,
+    periodBalance,
   }
 })
