@@ -1,10 +1,6 @@
 <script setup lang="ts">
 import MainLayout from "@/layouts/MainLayout.vue";
-import MainPage from "@/components/MainPage.vue";
-import Dashboard from "@/components/Dashboard/Dashboard.vue";
-import {useTransactionsStore} from "@/stores/transactions.ts";
 
-const store = useTransactionsStore()
 </script>
 
 <template>
@@ -12,21 +8,9 @@ const store = useTransactionsStore()
   </header>
 
   <MainLayout>
-    <div class="container">
-      <MainPage/>
-      <Dashboard/>
-    </div>
-    <pre>{{store.filteredTransactions}}</pre>
+    <RouterView/>
   </MainLayout>
 </template>
 
 <style scoped>
-
-.container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-
 </style>

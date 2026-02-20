@@ -2,14 +2,13 @@ import type { Transaction } from "@/types.ts";
 
 export function generateMockTransactions() {
   const STORAGE_KEY = "transactions";
-  const today = new Date();           // 13 февраля 2026
+  const today = new Date();           // ~20 февраля 2026
   const currentYear = today.getFullYear();
-  const currentMonth = today.getMonth(); // 1 = февраль
+  const currentMonth = today.getMonth();
 
   const transactions: Transaction[] = [];
   let id = 1;
 
-  // ─── Помощник для добавления транзакции ───────────────────────────────
   const add = (
     targetDate: Date,
     title: string,
@@ -19,7 +18,7 @@ export function generateMockTransactions() {
     variation = 0.0,
     onlyWeekdays = false
   ) => {
-    if (targetDate > today) return; // ничего в будущем
+    if (targetDate > today) return;
 
     if (onlyWeekdays) {
       const dayOfWeek = targetDate.getDay();
@@ -42,96 +41,131 @@ export function generateMockTransactions() {
     });
   };
 
-  // ─── Генерация за 12 месяцев (всегда полный цикл) ──────────────────────
+  // ─── Фиксированные ежемесячные платежи ─────────────────────────────────
   for (let offsetMonth = -11; offsetMonth <= 0; offsetMonth++) {
     const baseMonth = (currentMonth + offsetMonth + 12) % 12;
     const baseYear = currentYear + Math.floor((currentMonth + offsetMonth) / 12);
 
     const isCurrentMonth = offsetMonth === 0;
 
-    // ── Зарплата (7–9 число) ──
-    const salaryDay = 7 + Math.floor(Math.random() * 3);
+    // Зарплата — всегда 95 000 ₽, всегда 7-е число
+    const salaryDay = 7;
     const salaryDate = new Date(baseYear, baseMonth, salaryDay);
-    if (!isCurrentMonth || salaryDate <= today) {
-      add(salaryDate, "Зарплата ООО «Ромашка»", 80000, true, "salary", 0.0, true);
+
+    // Пропускаем только если дата в будущем
+    if (salaryDate <= today) {
+      add(salaryDate, "Зарплата", 95000, true, "salary", 0.0, false);
     }
 
-    // ── Аванс (15–17 число) ──
-    const advanceDay = 15 + Math.floor(Math.random() * 3);
-    const advanceDate = new Date(baseYear, baseMonth, advanceDay);
-    if (!isCurrentMonth || advanceDate <= today) {
-      add(advanceDate, "Аванс", 75000, true, "salary", 0.0, true);
+    // Дополнительный доход / премия — иногда, с вариацией (можно убрать, если не нужен)
+    if (Math.random() > 0.70) {
+      const extraDay = 20 + Math.floor(Math.random() * 8);
+      const extraDate = new Date(baseYear, baseMonth, extraDay);
+      if (extraDate <= today) {
+        add(extraDate, "Премия / подработка", 15000 + Math.floor(Math.random() * 25000), true, "salary", 0.15);
+      }
     }
 
-    // ── Аренда (~3 число) ──
-    const rentDate = new Date(baseYear, baseMonth, 3);
-    if (!isCurrentMonth || rentDate <= today) {
-      add(rentDate, "Аренда квартиры", 54000, false, "housing", 0.04);
+    // Аренда — ровно 35 000 ₽
+    const rentDay = 3 + Math.floor(Math.random() * 4);
+    const rentDate = new Date(baseYear, baseMonth, rentDay);
+    if (rentDate <= today) {
+      add(rentDate, "Аренда квартиры", 35000, false, "housing", 0.0);
     }
 
-    // ── Подписки (привязываем к середине месяца) ──
-    if (!isCurrentMonth || new Date(baseYear, baseMonth, 15) <= today) {
-      add(new Date(baseYear, baseMonth, 15), "YouTube Premium + Netflix", 1850, false, "fun", 0.0);
-      add(new Date(baseYear, baseMonth, 16), "Spotify Family", 1690, false, "fun", 0.0);
+    // ЖКХ + интернет + связь — ровно 9 500 ₽
+    if (new Date(baseYear, baseMonth, 12) <= today) {
+      add(new Date(baseYear, baseMonth, 10 + Math.floor(Math.random() * 10)), "ЖКХ + интернет + мобильная связь", 9500, false, "housing", 0.0);
+    }
+
+    // Подписки — ровно 990 ₽
+    if (new Date(baseYear, baseMonth, 15) <= today) {
+      add(new Date(baseYear, baseMonth, 14 + Math.floor(Math.random() * 5)), "Яндекс Плюс / IVI / Okko", 990, false, "fun", 0.0);
     }
   }
 
-  // ─── Продукты, кафе, транспорт — распределены по всем месяцам ────────
-  const daysBack = 365; // ~12 месяцев
+  // ─── Распределённые траты (без изменений) ──────────────────────────────
+  const daysBack = 370;
 
-  // Продукты
-  for (let i = 0; i < 120; i++) {
+  // Продукты — много мелких чеков
+  for (let i = 0; i < 240; i++) {
     const offset = -Math.floor(Math.random() * daysBack);
     const d = new Date(today);
     d.setDate(d.getDate() + offset);
     if (d > today) continue;
-    if (Math.random() > 0.32) continue;
-    const baseAmt = Math.random() > 0.6 ? 6800 : 3900;
-    add(d, "Продукты", baseAmt, false, "groceries", 0.28);
+    if (Math.random() > 0.65) continue;
+
+    const isMedium = Math.random() > 0.65;
+    const isSmall  = Math.random() > 0.40;
+
+    let baseAmt: number;
+    if (isMedium) baseAmt = 1200 + Math.floor(Math.random() * 600);
+    else if (isSmall) baseAmt = 600 + Math.floor(Math.random() * 400);
+    else baseAmt = 900 + Math.floor(Math.random() * 800);
+
+    const shops = ["Пятёрочка", "Магнит", "Перекрёсток", "Красное&Белое", "Бахетле", "На рынке"];
+    const shop = shops[Math.floor(Math.random() * shops.length)];
+
+    add(d, `Продукты — ${shop}`, baseAmt, false, "groceries", 0.18);
   }
 
-  // Обеды / кафе (больше в будни)
-  for (let i = 0; i < 140; i++) {
+  // Кафе / доставка
+  for (let i = 0; i < 150; i++) {
     const offset = -Math.floor(Math.random() * daysBack);
     const d = new Date(today);
     d.setDate(d.getDate() + offset);
     if (d > today) continue;
-    if (Math.random() > 0.45) continue;
-    add(d, "Обед / кофе", 450 + Math.floor(Math.random() * 900), false, "food", 0.25, true);
+    if (Math.random() > 0.44) continue;
+
+    const base = 380 + Math.floor(Math.random() * 950);
+    const title = Math.random() > 0.58
+      ? "Обед в столовой / кафе"
+      : Math.random() > 0.5
+        ? "Доставка Яндекс.Еда"
+        : "Кофе / перекус";
+    add(d, title, base, false, "food", 0.22, true);
   }
 
   // Транспорт
-  for (let i = 0; i < 90; i++) {
+  for (let i = 0; i < 100; i++) {
     const offset = -Math.floor(Math.random() * daysBack);
     const d = new Date(today);
     d.setDate(d.getDate() + offset);
     if (d > today) continue;
-    add(d, "Такси / метро / автобус", 800 + Math.floor(Math.random() * 1600), false, "transport", 0.38);
+    if (Math.random() > 0.36) continue;
+
+    const base = 250 + Math.floor(Math.random() * 1100);
+    const title = Math.random() > 0.62
+      ? "Проездной / автобус / метро"
+      : "Такси Яндекс / Драйв";
+    add(d, title, base, false, "transport", 0.32);
   }
 
-  // ─── Редкие / разовые траты (разбрасываем по году) ────────────────────
+  // ─── Редкие крупные события ────────────────────────────────────────────
   const rareEvents = [
-    { daysAgo: 38,  title: "Годовая премия",         amount: 120000, income: true,  cat: "salary",  var: 0.12 },
-    { daysAgo: 97,  title: "Премия за квартал",      amount: 65000,  income: true,  cat: "salary",  var: 0.18 },
-    { daysAgo: 68,  title: "Стоматология (лечение)", amount: 15800,  income: false, cat: "health",  var: 0.15 },
-    { daysAgo: 41,  title: "Перевод маме на др",     amount: 12000,  income: false, cat: "expense", var: 0.10 },
-    { daysAgo: 105, title: "Подарок на свадьбу",     amount: 8500,   income: false, cat: "gift",    var: 0.20 },
-    { daysAgo: 9,   title: "Ремонт ноутбука",        amount: 18400,  income: false, cat: "other-exp", var: 0.08 },
+    {daysAgo: 50,  title: "Годовая премия",           amount: 140000, income: true,  cat: "salary"},
+    {daysAgo: 120, title: "13-я зарплата",            amount: 65000,  income: true,  cat: "salary"},
+    {daysAgo: 80,  title: "Стоматология / чекап",     amount: 18000,  income: false, cat: "health"},
+    {daysAgo: 35,  title: "Перевод родителям",        amount: 12000,  income: false, cat: "expense"},
+    {daysAgo: 100, title: "Подарок на день рождения", amount: 8000,   income: false, cat: "gift"},
+    {daysAgo: 18,  title: "Ремонт телефона",          amount: 13500,  income: false, cat: "other-exp"},
+    {daysAgo: 210, title: "Покупка ноутбука",         amount: 65000,  income: false, cat: "other-exp"},
+    {daysAgo: 280, title: "Отпуск (билеты + отель)",  amount: 52000,  income: false, cat: "fun"},
+    {daysAgo: 150, title: "Платёж по кредиту",        amount: 28000,  income: false, cat: "credit"},
   ];
 
   rareEvents.forEach(e => {
     const d = new Date(today);
     d.setDate(d.getDate() - e.daysAgo);
     if (d <= today) {
-      add(d, e.title, e.amount, e.income, e.cat, e.var);
+      add(d, e.title, e.amount, e.income, e.cat, 0.10); // небольшая вариация для редких событий
     }
   });
 
-  // Сортировка от старых к новым
   transactions.sort((a, b) => a.date.localeCompare(b.date));
 
   localStorage.setItem(STORAGE_KEY, JSON.stringify(transactions));
-  console.log(`Сгенерировано ${transactions.length} транзакций (12-месячный цикл)`);
+  console.log(`Сгенерировано ${transactions.length} транзакций`);
 
   return transactions;
 }

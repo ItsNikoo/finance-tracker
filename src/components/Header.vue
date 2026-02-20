@@ -3,13 +3,13 @@
 
 <template>
   <div class="header">
-    <div class="logo">
+    <RouterLink to="/" class="logo">
       <img src="/Logo.jpg" alt="Logo">
-    </div>
+    </RouterLink>
 
     <ul class="header-nav">
-      <li>Трекер</li>
-      <li>Аналитика</li>
+      <RouterLink class="nav-option" to="/tracker">Трекер</RouterLink>
+      <RouterLink class="nav-option" to="/analytics">Аналитика</RouterLink>
     </ul>
 
     <div class="right-space"></div>
@@ -40,10 +40,16 @@
   gap: 40px;
 }
 
-li {
+.nav-option {
   font-weight: 500;
   color: #313131;
   cursor: pointer;
+  text-decoration: none;
+}
+
+.nav-option:hover {
+  transition: 0.5s;
+  color: #2A7956;
 }
 
 @media (max-width: 850px) {
