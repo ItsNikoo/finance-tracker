@@ -3,8 +3,8 @@
 import MainPage from "@/components/MainPage.vue";
 import Dashboard from "@/components/Dashboard/Dashboard.vue";
 import {useTransactionsStore} from "@/stores/transactions.ts";
+import LimitsWidget from "@/components/Dashboard/Limits/LimitsWidget.vue";
 
-const store = useTransactionsStore()
 
 </script>
 
@@ -13,7 +13,6 @@ const store = useTransactionsStore()
     <MainPage/>
     <Dashboard/>
   </div>
-  <pre>{{ store.filteredTransactions }}</pre>
 </template>
 
 <style scoped>

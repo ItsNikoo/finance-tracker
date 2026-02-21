@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import FormComponent from "@/components/FormComponent.vue";
-import BalanceInfoCard from "@/components/Dashboard/BalanceInfoCard.vue";
-import TotalBalanceCard from "@/components/Dashboard/TotalBalanceCard.vue";
-import TransactionList from "@/components/Transactions/TransactionList.vue";
+import BalanceInfoWidget from "@/components/Dashboard/BalanceInfoWidget.vue";
+import TotalBalanceWidget from "@/components/Dashboard/TotalBalanceWidget.vue";
+import TransactionList from "@/components/Dashboard/Transactions/TransactionList.vue";
 import {useTransactionsStore} from "@/stores/transactions.ts";
 import ExpencesChartsContainer from "@/components/Charts/ExpencesChartsContainer.vue";
 import MonthToggle from "@/components/UI/MonthToggle.vue";
+import LimitsWidget from "@/components/Dashboard/Limits/LimitsWidget.vue";
 
 const store = useTransactionsStore()
 </script>
@@ -16,14 +17,15 @@ const store = useTransactionsStore()
 
     <div class="dashboard-row top-row">
       <FormComponent/>
-      <TotalBalanceCard :balance="store.periodBalance"/>
-      <BalanceInfoCard :amount="store.periodIncome" :isIncome="true"/>
-      <BalanceInfoCard :amount="store.periodExpenses" :isIncome="false"/>
+      <TotalBalanceWidget :balance="store.periodBalance"/>
+      <BalanceInfoWidget :amount="store.periodIncome" :isIncome="true"/>
+      <BalanceInfoWidget :amount="store.periodExpenses" :isIncome="false"/>
     </div>
 
     <div class="dashboard-row bottom-row">
       <TransactionList :on-delete="store.deleteTransaction"/>
-      <ExpencesChartsContainer/>
+<!--      <ExpencesChartsContainer/>-->
+      <LimitsWidget/>
     </div>
   </div>
 </template>

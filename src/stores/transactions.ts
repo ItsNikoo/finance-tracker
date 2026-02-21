@@ -1,10 +1,11 @@
 import {defineStore} from "pinia";
 import {computed, ref, watch} from "vue";
-import type {Transaction} from "@/types.ts";
+import type {Limit, Transaction} from "@/types.ts";
 import {generateMockTransactions} from "@/lib/mockGenerator.ts";
+import {generateLimits} from "@/lib/limitGenerator.ts";
+import {categories} from "@/lib/categories.ts";
 
 export const useTransactionsStore = defineStore("transactions", () => {
-  // Состояние
   const STORAGE_KEY = "transactions"
 
   const transactions = ref<Transaction[]>([])
@@ -132,6 +133,50 @@ export const useTransactionsStore = defineStore("transactions", () => {
     return group ? group.transactions : []
   })
 
+  const groupedExpencesByCategory = computed(() => {
+    const map = new Map<string, {
+      categoryId: string,
+      name: string,
+      total: number,
+      count: number,
+      transactions: Transaction[]
+    }>()
+
+    const selected = selectedMonth.value
+
+    const relevantTransactions = selected === 'all'
+      ? transactions.value
+      : transactions.value.filter(t => {
+        const monthNum = Number(t.date.split('-')[1])
+        return monthNum === selected
+      })
+
+    relevantTransactions
+      .filter(t => !t.isIncome)
+      .forEach(t => {
+        if (!map.has(t.categoryId)) {
+          const category = categories.find(c => c.id === t.categoryId)
+          const name = category ? category.name : t.categoryId
+
+          map.set(t.categoryId, {
+            categoryId: t.categoryId,
+            name,
+            total: 0,
+            count: 0,
+            transactions: []
+          })
+        }
+
+        const group = map.get(t.categoryId)!
+        group.total += t.amount
+        group.count += 1
+        group.transactions.push(t)
+      })
+
+    return Array.from(map.values())
+      .sort((a, b) => b.total - a.total)
+  })
+
   const periodIncome = computed(() => {
     if (selectedMonth.value === 'all') {
       return totalIncome.value
@@ -188,7 +233,10 @@ export const useTransactionsStore = defineStore("transactions", () => {
     transactions,
     totalIncome,
     totalExpenses,
-    groupedByMonth,
+
+    groupedExpencesByCategory,
+    categoryExpenses: (categoryId: string) => groupedExpencesByCategory.value.find(g => g.categoryId === categoryId),
+
     addTransaction,
     deleteTransaction,
 

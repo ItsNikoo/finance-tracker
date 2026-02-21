@@ -12,3 +12,9 @@ export interface Transaction {
   categoryId: string
   date: string
 }
+
+export interface Limit {
+  categoryId: string
+  name: string
+  limit: number
+}

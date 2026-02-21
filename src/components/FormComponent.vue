@@ -9,6 +9,7 @@ const form = ref<Omit<Transaction, "id">>({
   amount: 0,
   isIncome: false,
   categoryId: '' as string,
+  date: '' as string
 })
 
 const error = ref<string | null>(null)
@@ -17,23 +18,23 @@ const store = useTransactionsStore()
 
 const availableCategories = computed(() => {
   return categories.filter(category =>
-    form.value.isIncome
-      ? category.type === 'income'
-      : category.type === 'expense'
+      form.value.isIncome
+          ? category.type === 'income'
+          : category.type === 'expense'
   )
 })
 
 watch(
-  () => form.value.isIncome,
-  () => form.value.categoryId = ''
+    () => form.value.isIncome,
+    () => form.value.categoryId = ''
 )
 
 function handleSubmit() {
-  if (form.value.title.trim() === ""){
+  if (form.value.title.trim() === "") {
     error.value = "Выберите описание транзакции"
     return
   }
-  if (form.value.amount <= 0){
+  if (form.value.amount <= 0) {
     error.value = "Сумма транзакции должна быть больше 0"
     return
   }
@@ -43,7 +44,7 @@ function handleSubmit() {
   }
   store.addTransaction(form.value)
   error.value = null
-  form.value = {title: "", amount: 0, isIncome: false, categoryId: ''}
+  form.value = {title: "", amount: 0, isIncome: false, categoryId: '', date: ''}
 }
 </script>
 
@@ -53,17 +54,17 @@ function handleSubmit() {
       <h2 class="form-title">Добавить транзакцию</h2>
 
       <input
-        type="text"
-        v-model="form.title"
-        placeholder="Описание транзакции"
-        class="form-input"
+          type="text"
+          v-model="form.title"
+          placeholder="Описание транзакции"
+          class="form-input"
       />
 
       <input
-        type="number"
-        v-model.number="form.amount"
-        placeholder="Сумма"
-        class="form-input"
+          type="number"
+          v-model.number="form.amount"
+          placeholder="Сумма"
+          class="form-input"
       />
 
       <select v-model="form.isIncome" class="form-input">
@@ -72,13 +73,13 @@ function handleSubmit() {
       </select>
 
       <select
-        v-model="form.categoryId"
-        class="form-input">
+          v-model="form.categoryId"
+          class="form-input">
         <option value="" disabled selected>Выберите категорию</option>
         <option
-          v-for="c in availableCategories"
-          :key="c.id"
-          :value="c.id"
+            v-for="c in availableCategories"
+            :key="c.id"
+            :value="c.id"
         >
           {{ c.name }}
         </option>
@@ -87,9 +88,9 @@ function handleSubmit() {
       <p class="error-alert">{{ error }}</p>
 
       <button
-        type="button"
-        @click="handleSubmit()"
-        class="form-button"
+          type="button"
+          @click="handleSubmit()"
+          class="form-button"
       >
         Зафиксировать
       </button>
@@ -184,7 +185,7 @@ function handleSubmit() {
   transform: translateY(0);
 }
 
-.error-alert{
+.error-alert {
   font-style: italic;
   font-size: 14px;
   color: #d9534f;

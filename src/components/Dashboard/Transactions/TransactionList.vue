@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import TransactionCard from "@/components/Transactions/TransactionCard.vue";
+import TransactionCard from "@/components/Dashboard/Transactions/TransactionCard.vue";
 import {useTransactionsStore} from "@/stores/transactions.ts";
 
 
@@ -19,7 +19,7 @@ const store = useTransactionsStore()
 
 <style scoped>
 .transaction-list {
-  padding: 20px;
+  padding: 10px;
   max-height: 520px;
 
   overflow-y: auto;
@@ -27,10 +27,7 @@ const store = useTransactionsStore()
 
   display: flex;
   flex-direction: column;
-  gap: 12px;
-
-  scrollbar-width: thin;
-  scrollbar-color: #d1d5db #f3f4f6;
+  gap: 10px;
 }
 
 @media (max-width: 600px) {
