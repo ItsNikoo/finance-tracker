@@ -4,12 +4,11 @@ import type {Transaction} from "@/types.ts";
 import {categories} from "@/lib/categories.ts";
 import {useTransactionsStore} from "@/stores/transactions.ts";
 
-const form = ref<Omit<Transaction, "id">>({
+const form = ref<Omit<Transaction, "id" | "date">>({
   title: '',
   amount: 0,
   isIncome: false,
-  categoryId: '' as string,
-  date: '' as string
+  categoryId: ''
 })
 
 const error = ref<string | null>(null)
@@ -42,9 +41,9 @@ function handleSubmit() {
     error.value = "Выберите категорию"
     return
   }
-  store.addTransaction(form.value)
+  store.addTransaction({...form.value, date: new Date().toISOString().split('T')[0]!})
   error.value = null
-  form.value = {title: "", amount: 0, isIncome: false, categoryId: '', date: ''}
+  form.value = {title: "", amount: 0, isIncome: false, categoryId: ''}
 }
 </script>
 
@@ -112,19 +111,8 @@ function handleSubmit() {
   flex-direction: column;
   gap: 10px;
 
-  padding: 30px;
-
   width: 100%;
   max-width: 420px;
-
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-  transition: 0.2s ease;
-}
-
-.form:hover {
-  box-shadow: rgba(30, 87, 61, 0.25) 0 0 20px;
 }
 
 .form-title {
@@ -145,14 +133,6 @@ function handleSubmit() {
 .form-input:focus {
   outline: none;
   border-color: #41B883;
-}
-
-.checkbox-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  cursor: pointer;
 }
 
 .checkbox-wrapper input {

@@ -57,18 +57,14 @@ function categoryTitleMapper(id: string) {
   align-items: center;
 
   background: white;
-  border-radius: 16px;
+  border-radius: 12px;
   padding: 0 20px;
   min-height: 94px;
 
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
+  border: 1px solid rgba(42, 121, 86, 0.2);
   cursor: default;
 }
 
-.transaction-card:hover {
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.1);
-}
 
 /* ──────────────────────────────────────── */
 

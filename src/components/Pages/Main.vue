@@ -1,16 +1,18 @@
 <script setup lang="ts">
 
-import MainPage from "@/components/MainPage.vue";
+import Hero from "@/components/MainPage/Hero.vue";
 import Dashboard from "@/components/Dashboard/Dashboard.vue";
-import {useTransactionsStore} from "@/stores/transactions.ts";
-import LimitsWidget from "@/components/Dashboard/Limits/LimitsWidget.vue";
+import Numbers from "@/components/MainPage/Numbers.vue";
+import Advantages from "@/components/MainPage/Advantages.vue";
 
 
 </script>
 
 <template>
   <div class="container">
-    <MainPage/>
+    <Hero/>
+    <Numbers/>
+    <Advantages/>
     <Dashboard/>
   </div>
 </template>

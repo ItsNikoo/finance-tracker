@@ -5,18 +5,31 @@ import {computed} from "vue";
 const props = defineProps<{
   limit: Limit
   expences: number
+  selectedMonth: number | 'all'
 }>()
 
-const percent = computed(() => {
-  if (props.limit.limit === 0) return 0
-  return Math.min((props.expences / props.limit.limit) * 100, 100)
+// 🔥 Эффективный лимит
+const effectiveLimit = computed(() => {
+  return props.selectedMonth === 'all'
+      ? props.limit.limit * 12
+      : props.limit.limit
 })
+
+const percent = computed(() => {
+  if (effectiveLimit.value === 0) return 0
+  return Math.min((props.expences / effectiveLimit.value) * 100, 100)
+})
+
 const remaining = computed(() => {
-  return props.limit.limit - props.expences;
+  return effectiveLimit.value - props.expences;
 })
 
 const progressColor = computed(() => {
-  return percent.value < 60 ? '#2a7956' : percent.value < 85 ? '#f59e0b' : '#d9534f'
+  return percent.value < 60
+      ? '#2a7956'
+      : percent.value < 85
+          ? '#f59e0b'
+          : '#d9534f'
 })
 </script>
 
@@ -37,7 +50,9 @@ const progressColor = computed(() => {
       <div class="amount-wrapper">
         <span class="spent">{{ props.expences.toLocaleString('ru-RU') }}</span>
         <span class="slash"> / </span>
-        <span class="limit">{{ props.limit.limit.toLocaleString('ru-RU') }} ₽</span>
+        <span class="limit">
+          {{ effectiveLimit.toLocaleString('ru-RU') }} ₽
+        </span>
       </div>
 
       <div class="remaining" :class="{ negative: remaining < 0 }">
@@ -53,21 +68,12 @@ const progressColor = computed(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-
   background: white;
-  border-radius: 16px;
+  border-radius: 12px;
   padding: 16px 20px;
   min-height: 94px;
-
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
+  border: 1px solid rgba(42, 121, 86, 0.2);
 }
-
-.limit-card:hover {
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.1);
-}
-
-/* ──────────────────────────────────────── */
 
 .left {
   flex: 1;
@@ -100,8 +106,6 @@ const progressColor = computed(() => {
   border-radius: 4px;
   transition: width 0.4s ease, background-color 0.4s ease;
 }
-
-/* ──────────────────────────────────────── */
 
 .right {
   display: flex;
@@ -146,60 +150,5 @@ const progressColor = computed(() => {
 .remaining.negative {
   color: #d9534f;
   font-weight: 600;
-}
-
-/* ========== АДАПТИВНОСТЬ ========== */
-
-@media (max-width: 768px) {
-  .limit-card {
-    padding: 14px 16px;
-    min-height: 84px;
-  }
-
-  .category-name {
-    font-size: 16px;
-    max-width: 200px;
-  }
-
-  .spent {
-    font-size: 19px;
-  }
-
-  .limit {
-    font-size: 17px;
-  }
-}
-
-@media (max-width: 600px) {
-  .limit-card {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 16px;
-  }
-
-  .right {
-    align-items: flex-start;
-    text-align: left;
-    width: 100%;
-  }
-
-  .amount-wrapper {
-    font-size: 18px;
-  }
-
-  .remaining {
-    font-size: 14px;
-  }
-}
-
-@media (max-width: 480px) {
-  .limit-card {
-    padding: 12px 14px;
-  }
-
-  .category-name {
-    font-size: 15px;
-  }
 }
 </style>

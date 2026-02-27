@@ -43,19 +43,15 @@ const periodLabel = computed(() => {
 <style scoped>
 .balance-card {
   background: white;
-  border-radius: 16px;
+  border-radius: 12px;
   padding: 24px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+
+  border: 1px solid rgba(42, 121, 86, 0.2);
+
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   min-height: 140px;
-  transition: 0.2s ease;
-  cursor: pointer;
-}
-
-.balance-card:hover {
-  box-shadow: rgba(30, 87, 61, 0.25) 0 0 20px;
 }
 
 .header {

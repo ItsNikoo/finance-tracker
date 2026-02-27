@@ -19,7 +19,6 @@ const store = useTransactionsStore()
 
 <style scoped>
 .transaction-list {
-  padding: 10px;
   max-height: 520px;
 
   overflow-y: auto;
@@ -28,6 +27,29 @@ const store = useTransactionsStore()
   display: flex;
   flex-direction: column;
   gap: 10px;
+
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+/* Chrome / Edge / Safari */
+.transaction-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.transaction-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.transaction-list::-webkit-scrollbar-thumb {
+  background: rgba(42, 121, 86, 0.25);
+  border-radius: 10px;
+  transition: background 0.2s ease;
+}
+
+.transaction-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(42, 121, 86, 0.45);
 }
 
 @media (max-width: 600px) {

@@ -4,11 +4,13 @@ import BalanceInfoWidget from "@/components/Dashboard/BalanceInfoWidget.vue";
 import TotalBalanceWidget from "@/components/Dashboard/TotalBalanceWidget.vue";
 import TransactionList from "@/components/Dashboard/Transactions/TransactionList.vue";
 import {useTransactionsStore} from "@/stores/transactions.ts";
-import ExpencesChartsContainer from "@/components/Charts/ExpencesChartsContainer.vue";
 import MonthToggle from "@/components/UI/MonthToggle.vue";
 import LimitsWidget from "@/components/Dashboard/Limits/LimitsWidget.vue";
+import {ref} from "vue";
+import ModalWindow from "@/components/UI/ModalWindow.vue";
 
 const store = useTransactionsStore()
+const isModalOpen = ref<boolean>(false);
 </script>
 
 <template>
@@ -16,16 +18,27 @@ const store = useTransactionsStore()
     <MonthToggle/>
 
     <div class="dashboard-row top-row">
-      <FormComponent/>
+      <button class="add-transaction-card" @click="isModalOpen = true">
+        Добавить транзакцию
+      </button>
+
+      <ModalWindow v-model="isModalOpen">
+        <FormComponent/>
+      </ModalWindow>
       <TotalBalanceWidget :balance="store.periodBalance"/>
       <BalanceInfoWidget :amount="store.periodIncome" :isIncome="true"/>
       <BalanceInfoWidget :amount="store.periodExpenses" :isIncome="false"/>
     </div>
 
     <div class="dashboard-row bottom-row">
-      <TransactionList :on-delete="store.deleteTransaction"/>
-<!--      <ExpencesChartsContainer/>-->
-      <LimitsWidget/>
+      <div>
+        <h3 class="container-title">Транзакции</h3>
+        <TransactionList :on-delete="store.deleteTransaction"/>
+      </div>
+      <div>
+        <h3 class="container-title">Лимиты</h3>
+        <LimitsWidget/>
+      </div>
     </div>
   </div>
 </template>
@@ -48,6 +61,29 @@ const store = useTransactionsStore()
 
 .bottom-row {
   grid-template-columns: 1fr 1fr;
+}
+
+.add-transaction-card{
+  background: #2A7956;
+  color: white;
+  border-radius: 12px;
+  padding: 24px;
+
+  font-size: 18px;
+  font-weight: bolder;
+  border: none;
+
+  cursor: pointer;
+}
+
+.add-transaction-card:active{
+  background-color: #1E573D;
+}
+
+.container-title{
+  color: #313131;
+  font-size: 20px;
+  margin-bottom: 10px;
 }
 
 @media (max-width: 900px) {
