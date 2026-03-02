@@ -12,8 +12,7 @@ watch(selected,
 
 function getCurrentMonth() {
   const date = new Date();
-  const month = date.getMonth() + 1;
-  return month
+  return date.getMonth() + 1;
 }
 
 function select(value: number | "all") {
@@ -65,7 +64,6 @@ function select(value: number | "all") {
   flex-wrap: wrap;
   gap: 8px 12px;
   padding: 12px 0;
-  justify-content: center;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }

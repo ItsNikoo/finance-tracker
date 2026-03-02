@@ -40,11 +40,21 @@ const CurrentChart = computed(() =>
 
 <template>
   <div class="expenses-view">
-    <div class="toggle-header">
-      <ChartToggle v-model="isPie" size="lg"/>
-      <span class="toggle-text">
-        {{ isPie ? 'Круговая диаграмма' : 'Столбчатая диаграмма' }}
-      </span>
+    <div class="card-header">
+      <div class="header-text">
+        <h3 class="card-title">Структура расходов</h3>
+        <p class="card-subtitle">
+          Анализ категорий за выбранный период
+        </p>
+      </div>
+
+      <div class="chart-toggle">
+        <ChartToggle v-model="isPie" size="lg"/>
+      </div>
+    </div>
+
+    <div class="chart-type">
+      {{ isPie ? 'Круговая диаграмма' : 'Столбчатая диаграмма' }}
     </div>
 
     <div class="chart-wrapper">
@@ -65,21 +75,35 @@ const CurrentChart = computed(() =>
   padding: 16px 0;
 }
 
-.toggle-header {
+.card-header {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  gap: 12px;
-  margin-bottom: 24px;
-  text-align: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
 }
 
-.toggle-text {
-  font-size: 1.1rem;
-  font-weight: 500;
-  color: #374151;
+.card-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
 }
+
+.card-subtitle {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 4px 0 0 0;
+}
+
+.chart-type {
+  font-size: 14px;
+  font-weight: 500;
+  color: #2A7956;
+  margin-bottom: 10px;
+}
+
 
 .chart-wrapper {
   width: 100%;
@@ -88,12 +112,5 @@ const CurrentChart = computed(() =>
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
   overflow: hidden;
-}
-
-@media (min-width: 480px) {
-  .toggle-header {
-    flex-direction: row;
-    justify-content: center;
-  }
 }
 </style>

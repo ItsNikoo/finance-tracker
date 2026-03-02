@@ -53,7 +53,7 @@ const advantages = [
   color: #313131;
   font-size: 28px;
   font-weight: 700;
-  margin-bottom: 40px;
+  margin-bottom: 60px;
 }
 
 .grid {
@@ -96,5 +96,51 @@ const advantages = [
   font-family: "Inter", sans-serif;
   margin: 0;
   line-height: 1.5;
+}
+
+/* Планшеты */
+@media (max-width: 1024px) {
+  .wrapper {
+    padding: 30px 40px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px 30px;
+  }
+
+  .title {
+    font-size: 24px;
+    margin-bottom: 40px;
+  }
+}
+
+/* Телефоны */
+@media (max-width: 640px) {
+  .wrapper {
+    padding: 20px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+
+  .card {
+    gap: 12px;
+  }
+
+  .title {
+    font-size: 20px;
+    margin-bottom: 30px;
+  }
+
+  .card-title {
+    font-size: 16px;
+  }
+
+  .card-description {
+    font-size: 13px;
+  }
 }
 </style>

@@ -1,15 +1,17 @@
 <script setup lang="ts">
 
 import Header from "@/components/Header.vue";
+import Footer from "@/layouts/Footer.vue";
 </script>
 
 <template>
-<div class="layout">
-  <Header />
-  <main>
-    <slot />
-  </main>
-</div>
+  <div class="layout">
+    <Header/>
+    <main>
+      <slot/>
+    </main>
+  </div>
+  <Footer/>
 </template>
 
 <style scoped>

@@ -10,7 +10,7 @@
         <p class="subtitle">Ваш персональный финансовый ассистент</p>
         <div class="cta">
           <p class="cta-paragraph">Попробуйте уже сейчас!</p>
-          <button class="cta-button">Начать бесплатно</button>
+          <RouterLink to="/tracker" class="cta-button">Начать бесплатно</RouterLink>
         </div>
       </div>
       <img class="image" src="/Graph.jpg" alt="График на главной">
@@ -20,7 +20,8 @@
 
 <style scoped>
 .main-page {
-  min-height: 90vh;
+  margin-top: 120px;
+  margin-bottom: 160px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -66,6 +67,7 @@
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
+  text-decoration: none;
 }
 
 .cta-button:active {
@@ -73,7 +75,7 @@
 }
 
 .cta-button:hover {
-  box-shadow: rgba(30, 87, 61, 0.5) 0 0 30px;
+  box-shadow: rgba(30, 87, 61, 0.25) 0 0 30px;
   transition: 300ms;
 }
 
@@ -82,6 +84,17 @@
 }
 
 @media (max-width: 1310px) {
+  .main-page{
+    margin-top: 100px;
+  }
+
+  .title {
+    font-size: 50px;
+  }
+
+  .subtitle{
+    font-size: 18px;
+  }
 
   .image {
     width: 50%;
@@ -91,10 +104,17 @@
 @media (max-width: 1000px) {
   .title {
     text-align: center;
+    font-size: 40px;
   }
 
   .image {
     display: none;
+  }
+
+  .container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .left {
@@ -107,7 +127,7 @@
 }
 
 @media (max-width: 650px) {
-  .cta-paragraph{
+  .cta-paragraph {
     display: none;
   }
 }
