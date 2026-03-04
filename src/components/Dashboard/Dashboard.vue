@@ -2,12 +2,12 @@
 import FormComponent from "@/components/FormComponent.vue";
 import BalanceInfoWidget from "@/components/Dashboard/BalanceInfoWidget.vue";
 import TotalBalanceWidget from "@/components/Dashboard/TotalBalanceWidget.vue";
-import TransactionList from "@/components/Dashboard/Transactions/TransactionList.vue";
 import {useTransactionsStore} from "@/stores/transactions.ts";
 import MonthToggle from "@/components/UI/MonthToggle.vue";
 import LimitsWidget from "@/components/Dashboard/Limits/LimitsWidget.vue";
 import {ref} from "vue";
 import ModalWindow from "@/components/UI/ModalWindow.vue";
+import TransactionList from "@/components/Dashboard/Transactions/TransactionList.vue";
 
 const store = useTransactionsStore()
 const isModalOpen = ref<boolean>(false);
@@ -31,10 +31,7 @@ const isModalOpen = ref<boolean>(false);
     </div>
 
     <div class="dashboard-row bottom-row">
-      <div>
-        <h3 class="container-title">Транзакции</h3>
-        <TransactionList :on-delete="store.deleteTransaction"/>
-      </div>
+        <TransactionList :title="'Транзакции'" :only-expences="false" />
       <div>
         <h3 class="container-title">Лимиты</h3>
         <LimitsWidget/>

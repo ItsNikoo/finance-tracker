@@ -1,14 +1,16 @@
 import {defineStore} from "pinia";
 import {computed, ref, watch} from "vue";
-import type {Limit, Transaction} from "@/types.ts";
+import type {CategorySelection, Transaction} from "@/types.ts";
 import {generateMockTransactions} from "@/lib/mockGenerator.ts";
-import {generateLimits} from "@/lib/limitGenerator.ts";
 import {categories} from "@/lib/categories.ts";
 
 export const useTransactionsStore = defineStore("transactions", () => {
   const STORAGE_KEY = "transactions"
 
   const transactions = ref<Transaction[]>([])
+  const selectedMonth = ref<number | 'all'>('all')
+  const selectedCategory = ref<string>("Все")
+
   let nextId = 1
 
   function loadDataFromLocalStorage() {
@@ -58,10 +60,16 @@ export const useTransactionsStore = defineStore("transactions", () => {
     {deep: true}
   )
 
-  const selectedMonth = ref<number | 'all'>('all')
-
   function setSelectedMonth(value: number | 'all') {
     selectedMonth.value = value
+  }
+
+  function setSelectedCategory(category: string) {
+    // Toggle логика
+    selectedCategory.value =
+      selectedCategory.value === category
+        ? 'Все'
+        : category
   }
 
   // Геттеры
@@ -134,13 +142,7 @@ export const useTransactionsStore = defineStore("transactions", () => {
   })
 
   const groupedExpencesByCategory = computed(() => {
-    const map = new Map<string, {
-      categoryId: string,
-      name: string,
-      total: number,
-      count: number,
-      transactions: Transaction[]
-    }>()
+    const map = new Map<string, CategorySelection>()
 
     const selected = selectedMonth.value
 
@@ -242,6 +244,9 @@ export const useTransactionsStore = defineStore("transactions", () => {
 
     selectedMonth,
     setSelectedMonth,
+    selectedCategory,
+    setSelectedCategory,
+
     filteredTransactions,
     periodIncome,
     periodExpenses,

@@ -18,3 +18,11 @@ export interface Limit {
   name: string
   limit: number
 }
+
+export interface CategorySelection{
+  categoryId: string,
+  name: string,
+  total: number,
+  count: number,
+  transactions: Transaction[]
+}

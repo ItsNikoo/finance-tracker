@@ -4,6 +4,7 @@ import TotalBalanceWidget from "@/components/Dashboard/TotalBalanceWidget.vue"
 import {useTransactionsStore} from "@/stores/transactions.ts"
 import MonthToggle from "@/components/UI/MonthToggle.vue"
 import ExpencesChartsContainer from "@/components/Charts/ExpencesChartsContainer.vue"
+import TransactionList from "@/components/Dashboard/Transactions/TransactionList.vue";
 
 const store = useTransactionsStore()
 </script>
@@ -26,9 +27,13 @@ const store = useTransactionsStore()
       <div class="charts-section">
         <ExpencesChartsContainer/>
       </div>
-      <pre>
-        {{ store.groupedExpencesByCategory }}
-        </pre>
+      <div class="expenses-section">
+        <TransactionList
+            :selectedCategory="store.selectedCategory"
+            :onlyExpences="true"
+            :title="'Расходы по категориям'"
+        />
+      </div>
       <div class="side-section">
         <!-- Можно добавить сюда сводку или оставить пустым -->
       </div>
@@ -47,10 +52,6 @@ const store = useTransactionsStore()
   margin-bottom: 20px;
 }
 
-/* ========================= */
-/* 📊 Карточки */
-/* ========================= */
-
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -58,28 +59,25 @@ const store = useTransactionsStore()
   margin-bottom: 10px;
 }
 
-/* ========================= */
-/* 📈 Сетка аналитики */
-/* ========================= */
-
 .analytics-grid {
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 30px;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
   align-items: start;
+  gap: 20px;
 }
 
-.charts-section {
-  width: 100%;
+.charts-section{
+  min-width: 0;
+}
+
+.expenses-section{
+  min-width: 0;
+  margin-top: 16px;
 }
 
 .side-section {
   min-height: 200px;
 }
-
-/* ========================= */
-/* 📱 Планшеты */
-/* ========================= */
 
 @media (max-width: 1024px) {
   .analytics-page {

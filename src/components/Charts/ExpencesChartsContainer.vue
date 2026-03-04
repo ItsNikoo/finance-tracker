@@ -41,7 +41,7 @@ const CurrentChart = computed(() =>
 <template>
   <div class="expenses-view">
     <div class="card-header">
-      <div class="header-text">
+      <div>
         <h3 class="card-title">Структура расходов</h3>
         <p class="card-subtitle">
           Анализ категорий за выбранный период

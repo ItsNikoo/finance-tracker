@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import {computed} from 'vue'
+import {useTransactionsStore} from "@/stores/transactions.ts";
 
 const props = defineProps<{
   labels: string[]
   values: number[]
   totalExpenses: number
 }>()
+
+const store = useTransactionsStore()
 
 const chartSeries = computed(() => [{
   name: 'Расходы',
@@ -17,7 +20,23 @@ const chartOptions = computed(() => ({
   chart: {
     height: 350,
     type: 'bar',
-    toolbar: {show: false}
+    toolbar: { show: false },
+    events: {
+      dataPointSelection: (
+          _event: MouseEvent,
+          _chartContext: unknown,
+          config: { dataPointIndex: number }
+      ) => {
+        const index = config.dataPointIndex
+        const category = props.labels[index]
+
+        if (!category) return
+
+        if (category){
+          store.setSelectedCategory(category)
+        }
+      }
+    }
   },
   labels: props.labels,
   xaxis: {

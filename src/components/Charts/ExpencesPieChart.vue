@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import {useTransactionsStore} from "@/stores/transactions.ts";
 
 // Принимаем данные через props
 const props = defineProps<{
@@ -8,13 +9,31 @@ const props = defineProps<{
   totalExpenses: number
 }>()
 
+const store = useTransactionsStore()
+
 const chartSeries = computed(() => props.values)
 
 const chartOptions = computed(() => ({
   chart: {
     type: 'donut',
     height: 350,
-    toolbar: { show: false }
+    toolbar: { show: false },
+    events: {
+      dataPointSelection: (
+          _event: MouseEvent,
+          _chartContext: unknown,
+          config: { dataPointIndex: number }
+      ) => {
+        const index = config.dataPointIndex
+        const category = props.labels[index]
+
+        if (!category) return
+
+        if (category){
+          store.setSelectedCategory(category)
+        }
+      }
+    }
   },
   labels: props.labels,
   legend: {
