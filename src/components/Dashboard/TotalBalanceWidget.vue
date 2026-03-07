@@ -1,28 +1,27 @@
 <script setup lang="ts">
-import {computed} from "vue";
-import {useTransactionsStore} from "@/stores/transactions.ts";
+import {computed} from "vue"
+import {useTransactionsStore} from "@/stores/transactions.ts"
 
 const store = useTransactionsStore()
 
-// Делаем computed, чтобы значения обновлялись при смене месяца
 const totalBalance = computed(() => store.periodBalance)
 
-const isPositive = computed(() => store.periodBalance >= 0)
+const isPositive = computed(() => totalBalance.value >= 0)
 
-// Форматированное значение с пробелами
 const formattedBalance = computed(() => {
   const value = totalBalance.value
   const formatted = Math.abs(value).toLocaleString('ru-RU')
   return value >= 0 ? `+${formatted}` : `-${formatted}`
 })
 
-// Динамический заголовок в зависимости от выбранного периода
 const periodLabel = computed(() => {
-  if (store.selectedMonth === 'all') {
-    return 'Общий баланс за все время'
-  }
-  return 'Баланс за выбранный месяц'
+  return store.selectedMonth === 'all'
+      ? 'Общий баланс за все время'
+      : 'Баланс за выбранный месяц'
 })
+
+// Динамический класс для цвета
+const balanceClass = computed(() => isPositive.value ? 'income' : 'expense')
 </script>
 
 <template>
@@ -33,7 +32,7 @@ const periodLabel = computed(() => {
 
     <div
         class="balance-amount"
-        :class="{ income: isPositive, expense: !isPositive }"
+        :class="balanceClass"
     >
       {{ formattedBalance }} ₽
     </div>
@@ -45,9 +44,7 @@ const periodLabel = computed(() => {
   background: white;
   border-radius: 12px;
   padding: 24px;
-
   border: 1px solid rgba(42, 121, 86, 0.2);
-
   display: flex;
   flex-direction: column;
   justify-content: space-between;

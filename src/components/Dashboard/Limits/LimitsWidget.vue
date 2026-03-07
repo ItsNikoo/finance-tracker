@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import {useLimitsStore} from "@/stores/limits.ts";
-import {useTransactionsStore} from "@/stores/transactions.ts";
-import LimitCard from "@/components/Dashboard/Limits/LimitCard.vue";
+import {useLimitsStore} from "@/stores/limits.ts"
+import {useTransactionsStore} from "@/stores/transactions.ts"
+import LimitCard from "@/components/Dashboard/Limits/LimitCard.vue"
 
 const store = useLimitsStore()
 const transactionsStore = useTransactionsStore()

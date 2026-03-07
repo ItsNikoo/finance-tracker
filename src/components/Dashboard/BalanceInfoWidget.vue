@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const props = defineProps<{
+  title: string,
   amount: number,
   isIncome: boolean,
 }>()
@@ -8,16 +9,16 @@ const props = defineProps<{
 <template>
   <div class="income-card">
     <div class="header">
-      <span class="income-label">{{ props.isIncome ? "Поступлений" : "Трат" }}</span>
+      <span class="income-label">{{ props.title }}</span>
       <span
-        class="income-badge"
-        :class="{ income: props.isIncome, expense: !props.isIncome }"
+          class="income-badge"
+          :class="{ income: props.isIncome, expense: !props.isIncome }"
       >{{ props.isIncome ? "+ Доход" : "- Расход" }}</span>
     </div>
 
     <div
-      class="income-amount"
-      :class="{ income: props.isIncome, expense: !props.isIncome }"
+        class="income-amount"
+        :class="{ income: props.isIncome, expense: !props.isIncome }"
     >
       {{ props.amount.toLocaleString() }} ₽
     </div>
@@ -54,26 +55,24 @@ const props = defineProps<{
 
 .income-badge {
   font-size: 12px;
-  background: rgba(42, 121, 86, 0.1);
-  color: #2A7956;
   padding: 4px 10px;
   border-radius: 20px;
   font-weight: 600;
+}
+
+.income-badge.income,
+.income-amount.income {
+  color: #2a7956;
+}
+
+.income-badge.expense,
+.income-amount.expense {
+  color: #d9534f;
 }
 
 .income-amount {
   margin-top: 20px;
   font-size: 28px;
   font-weight: 700;
-  color: #2A7956;
 }
-
-.income {
-  color: #2A7956;
-}
-
-.expense {
-  color: #d9534f;
-}
-
 </style>

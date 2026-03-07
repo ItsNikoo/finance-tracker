@@ -1,17 +1,17 @@
 <script setup lang="ts">
 
-import Header from "@/components/Header.vue";
-import Footer from "@/layouts/Footer.vue";
+import HeaderComponent from "@/components/HeaderComponent.vue"
+import FooterComponent from "@/layouts/FooterComponent.vue"
 </script>
 
 <template>
   <div class="layout">
-    <Header/>
+    <HeaderComponent/>
     <main>
       <slot/>
     </main>
   </div>
-  <Footer/>
+  <FooterComponent/>
 </template>
 
 <style scoped>

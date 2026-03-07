@@ -1,4 +1,4 @@
-import type {Category} from "@/types.ts";
+import type {Category} from "@/types.ts"
 
 export const categories: Category[] = [
   // Доходы
@@ -16,5 +16,5 @@ export const categories: Category[] = [
   {id: 'health', name: 'Здоровье', type: 'expense'},
   {id: 'expense', name: 'Перевод человеку', type: 'expense'},
   {id: 'credit', name: "Кредитные задолженности", type: 'expense'},
-  {id: 'other-exp', name: 'Другое', type: 'expense'},
+  {id: 'other-exp', name: 'Другое', type: 'expense'}
 ]

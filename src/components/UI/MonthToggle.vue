@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {ref, watch} from 'vue'
 import {months} from '@/lib/months.ts'
-import {useTransactionsStore} from "@/stores/transactions.ts";
+import {useTransactionsStore} from "@/stores/transactions.ts"
 
 const store = useTransactionsStore()
 const selected = ref<number | "all">(getCurrentMonth())
@@ -11,13 +11,13 @@ watch(selected,
     {immediate: true})
 
 function getCurrentMonth() {
-  const date = new Date();
-  return date.getMonth() + 1;
+  const date = new Date()
+  return date.getMonth() + 1
 }
 
 function select(value: number | "all") {
-  store.setSelectedMonth(value);
-  selected.value = value;
+  store.setSelectedMonth(value)
+  selected.value = value
 }
 </script>
 

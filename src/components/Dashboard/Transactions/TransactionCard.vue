@@ -1,20 +1,33 @@
 <script setup lang="ts">
-import type { Transaction } from "@/types.ts";
-import { useTransactionsStore } from "@/stores/transactions.ts";
-import { categories } from "@/lib/categories.ts";
+import type {Transaction} from "@/types.ts"
+import {useTransactionsStore} from "@/stores/transactions.ts"
+import {categories} from "@/lib/categories.ts"
+import {ref} from "vue"
+import ModalWindow from "@/components/UI/ModalWindow.vue"
+import EditTransactionForm from "@/components/UI/Forms/EditTransactionForm.vue"
 
 const props = defineProps<{
   transaction: Transaction;
-}>();
+}>()
 
-const store = useTransactionsStore();
+const isEditing = ref(false)
+
+function handleEdit() {
+  isEditing.value = true
+}
+
+function closeEdit() {
+  isEditing.value = false
+}
+
+const store = useTransactionsStore()
 
 function handleDelete() {
-  store.deleteTransaction(props.transaction.id);
+  store.deleteTransaction(props.transaction.id)
 }
 
 function categoryTitleMapper(id: string) {
-  return categories.find(category => category.id === id)?.name;
+  return categories.find(category => category.id === id)?.name
 }
 </script>
 
@@ -49,11 +62,22 @@ function categoryTitleMapper(id: string) {
         {{ props.transaction.amount.toLocaleString("ru-RU") }} ₽
       </p>
 
-      <button @click="handleDelete" class="remove-button">
-        <img class="remove-icon" src="/trash-can.png" alt="Удалить" />
-      </button>
+      <div class="crud">
+        <button @click="handleEdit" class="button">
+          <img class="remove-icon" src="/edit.png" alt="Редактировать"/>
+        </button>
+        <button @click="handleDelete" class="button">
+          <img class="remove-icon" src="/trash-can.png" alt="Удалить"/>
+        </button>
+      </div>
     </div>
   </div>
+  <ModalWindow v-model="isEditing">
+    <EditTransactionForm
+        :transaction="transaction"
+        @saved="closeEdit"
+    />
+  </ModalWindow>
 </template>
 
 <style scoped>
@@ -160,7 +184,11 @@ function categoryTitleMapper(id: string) {
   color: #d9534f;
 }
 
-.remove-button {
+.crud {
+  display: flex;
+}
+
+.button {
   width: 32px;
   height: 32px;
   background: #ffffff;
@@ -176,13 +204,8 @@ function categoryTitleMapper(id: string) {
   flex-shrink: 0;
 }
 
-.remove-button:hover {
-  background: #d9534f;
-  transform: scale(1.12);
-}
-
-.remove-button:active {
-  transform: scale(0.96);
+.button:hover {
+  background: #1E573D;
 }
 
 .remove-icon {

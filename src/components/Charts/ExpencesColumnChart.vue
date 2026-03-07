@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {computed} from 'vue'
-import {useTransactionsStore} from "@/stores/transactions.ts";
+import {useTransactionsStore} from "@/stores/transactions.ts"
 
 const props = defineProps<{
   labels: string[]
@@ -131,7 +131,7 @@ const chartOptions = computed(() => ({
     <apexchart
         v-else
         type="bar"
-        height="380"
+        height="400"
         :options="chartOptions"
         :series="chartSeries"
     />

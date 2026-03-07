@@ -3,9 +3,9 @@ import {ref, computed} from 'vue'
 import ChartToggle from '@/components/UI/ChartToggle.vue'
 import ExpencesPieChart from '@/components/Charts/ExpencesPieChart.vue'
 import ExpencesColumnChart from '@/components/Charts/ExpencesColumnChart.vue'
-import {useTransactionsStore} from "@/stores/transactions.ts";
-import type {Transaction} from "@/types.ts";
-import {categories} from "@/lib/categories.ts";
+import {useTransactionsStore} from "@/stores/transactions.ts"
+import type {Transaction} from "@/types.ts"
+import {categories} from "@/lib/categories.ts"
 
 const store = useTransactionsStore()
 const isPie = ref(false)
@@ -44,7 +44,7 @@ const CurrentChart = computed(() =>
       <div>
         <h3 class="card-title">Структура расходов</h3>
         <p class="card-subtitle">
-          Анализ категорий за выбранный период
+          Нажмите на категорию, чтобы посмотреть подробнее
         </p>
       </div>
 
@@ -72,7 +72,7 @@ const CurrentChart = computed(() =>
 .expenses-view {
   width: 100%;
   max-width: 100%;
-  padding: 16px 0;
+  padding-top: 16px;
 }
 
 .card-header {
@@ -107,7 +107,6 @@ const CurrentChart = computed(() =>
 
 .chart-wrapper {
   width: 100%;
-  min-height: 380px;
   background: white;
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);

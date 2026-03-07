@@ -4,7 +4,9 @@ import TotalBalanceWidget from "@/components/Dashboard/TotalBalanceWidget.vue"
 import {useTransactionsStore} from "@/stores/transactions.ts"
 import MonthToggle from "@/components/UI/MonthToggle.vue"
 import ExpencesChartsContainer from "@/components/Charts/ExpencesChartsContainer.vue"
-import TransactionList from "@/components/Dashboard/Transactions/TransactionList.vue";
+import TransactionList from "@/components/Dashboard/Transactions/TransactionList.vue"
+import StatsByMonth from "@/components/Charts/StatsByMonth.vue"
+import ShortStats from "@/components/Charts/ShortStats.vue"
 
 const store = useTransactionsStore()
 </script>
@@ -18,8 +20,8 @@ const store = useTransactionsStore()
     <!-- Карточки -->
     <div class="stats-grid">
       <TotalBalanceWidget :balance="store.periodBalance"/>
-      <BalanceInfoWidget :amount="store.periodIncome" :isIncome="true"/>
-      <BalanceInfoWidget :amount="store.periodExpenses" :isIncome="false"/>
+      <BalanceInfoWidget :title="'Доход'" :amount="store.periodIncome" :isIncome="true"/>
+      <BalanceInfoWidget :title="'Трат'" :amount="store.periodExpenses" :isIncome="false"/>
     </div>
 
     <!-- Графики 2/3 -->
@@ -34,8 +36,13 @@ const store = useTransactionsStore()
             :title="'Расходы по категориям'"
         />
       </div>
-      <div class="side-section">
-        <!-- Можно добавить сюда сводку или оставить пустым -->
+    </div>
+    <div class="analytics-grid">
+      <div class="charts-section">
+        <StatsByMonth/>
+      </div>
+      <div class="expenses-section">
+        <ShortStats/>
       </div>
     </div>
   </div>
@@ -62,22 +69,18 @@ const store = useTransactionsStore()
 .analytics-grid {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-  align-items: start;
   gap: 20px;
+  margin-bottom: 20px;
 }
 
-.charts-section{
+.charts-section {
   min-width: 0;
 }
 
-.expenses-section{
+.expenses-section {
   min-width: 0;
-  margin-top: 16px;
 }
 
-.side-section {
-  min-height: 200px;
-}
 
 @media (max-width: 1024px) {
   .analytics-page {

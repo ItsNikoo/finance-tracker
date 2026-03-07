@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type {Limit} from "@/types.ts";
-import {computed} from "vue";
+import type {Limit} from "@/types.ts"
+import {computed} from "vue"
 
 const props = defineProps<{
   limit: Limit
@@ -21,7 +21,7 @@ const percent = computed(() => {
 })
 
 const remaining = computed(() => {
-  return effectiveLimit.value - props.expences;
+  return effectiveLimit.value - props.expences
 })
 
 const progressColor = computed(() => {

@@ -1,8 +1,8 @@
-import {defineStore} from "pinia";
-import {computed, ref, watch} from "vue";
-import type {CategorySelection, Transaction} from "@/types.ts";
-import {generateMockTransactions} from "@/lib/mockGenerator.ts";
-import {categories} from "@/lib/categories.ts";
+import {defineStore} from "pinia"
+import {computed, ref, watch} from "vue"
+import type {CategorySelection, Transaction} from "@/types.ts"
+import {generateMockTransactions} from "@/lib/mockGenerator.ts"
+import {categories} from "@/lib/categories.ts"
 
 export const useTransactionsStore = defineStore("transactions", () => {
   const STORAGE_KEY = "transactions"
@@ -14,40 +14,42 @@ export const useTransactionsStore = defineStore("transactions", () => {
   let nextId = 1
 
   function loadDataFromLocalStorage() {
-    const data = localStorage.getItem(STORAGE_KEY);
+    const data = localStorage.getItem(STORAGE_KEY)
 
     if (data) {
       try {
-        const parsed = JSON.parse(data) as Transaction[];
-        transactions.value = parsed;
+        const parsed = JSON.parse(data) as Transaction[]
+        transactions.value = parsed
 
         if (parsed.length > 0) {
-          const maxId = Math.max(...parsed.map(item => item.id));
-          nextId = maxId + 1;
+          const maxId = Math.max(...parsed.map(item => item.id))
+          nextId = maxId + 1
         }
-        return;
+        return
       } catch (err) {
-        console.warn("Повреждённые данные → очищаем", err);
-        localStorage.removeItem(STORAGE_KEY);
+        console.warn("Повреждённые данные → очищаем", err)
+        localStorage.removeItem(STORAGE_KEY)
       }
     }
 
-    const mockGenerated = localStorage.getItem("mock_transactions_generated");
+    const mockGenerated = localStorage.getItem("mock_transactions_generated")
 
     if (mockGenerated === "true") {
-      console.log("Моковые данные уже были сгенерированы ранее → пропускаем");
-      transactions.value = [];
-      return;
+      console.log("Моковые данные уже были сгенерированы ранее → пропускаем")
+      transactions.value = []
+      return
     }
 
-    console.log("Генерируем mock-транзакции впервые...");
-    generateMockTransactions()
+    console.log("Генерируем mock-транзакции впервые...")
+    const generated = generateMockTransactions()
 
-    if (transactions.value.length > 0) {
-      nextId = Math.max(...transactions.value.map(t => t.id)) + 1;
+    transactions.value = generated
+
+    if (generated.length > 0) {
+      nextId = Math.max(...generated.map(t => t.id)) + 1
     }
 
-    localStorage.setItem("mock_transactions_generated", "true");
+    localStorage.setItem("mock_transactions_generated", "true")
   }
 
   loadDataFromLocalStorage()
@@ -223,8 +225,16 @@ export const useTransactionsStore = defineStore("transactions", () => {
       amount: form.amount,
       isIncome: form.isIncome,
       categoryId: form.categoryId,
-      date,
+      date
     })
+  }
+
+  function updateTransaction(updated: Transaction) {
+    const index = transactions.value.findIndex(t => t.id === updated.id)
+
+    if (index === -1) return
+
+    transactions.value[index] = {...updated}
   }
 
   function deleteTransaction(id: number) {
@@ -240,7 +250,10 @@ export const useTransactionsStore = defineStore("transactions", () => {
     categoryExpenses: (categoryId: string) => groupedExpencesByCategory.value.find(g => g.categoryId === categoryId),
 
     addTransaction,
+    updateTransaction,
     deleteTransaction,
+
+    groupedByMonth,
 
     selectedMonth,
     setSelectedMonth,
@@ -250,6 +263,6 @@ export const useTransactionsStore = defineStore("transactions", () => {
     filteredTransactions,
     periodIncome,
     periodExpenses,
-    periodBalance,
+    periodBalance
   }
 })

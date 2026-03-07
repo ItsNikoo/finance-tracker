@@ -1,7 +1,7 @@
-import type { Limit } from "@/types.ts";
+import type { Limit } from "@/types.ts"
 
 export function generateLimits() {
-  const STORAGE_KEY = "limits";
+  const STORAGE_KEY = "limits"
 
   const limits: Limit[] = [
 
@@ -54,11 +54,11 @@ export function generateLimits() {
       name: "Другое",
       limit: 8000
     }
-  ];
+  ]
 
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(limits));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(limits))
 
-  console.log(`Сгенерировано ${limits.length} лимитов по категориям`);
+  console.log(`Сгенерировано ${limits.length} лимитов по категориям`)
 
-  return limits;
+  return limits
 }

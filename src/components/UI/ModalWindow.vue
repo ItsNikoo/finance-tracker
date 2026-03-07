@@ -1,22 +1,22 @@
 <script setup lang="ts">
-import {onMounted, onUnmounted} from "vue";
+import {onMounted, onUnmounted} from "vue"
 
 const props = defineProps({
   modelValue: Boolean
-});
+})
 
-const emit = defineEmits(["update:modelValue"]);
+const emit = defineEmits(["update:modelValue"])
 
 const close = () => {
-  emit("update:modelValue", false);
-};
+  emit("update:modelValue", false)
+}
 
 const handleEsc = (e: KeyboardEvent) => {
-  if (e.key === "Escape") close();
-};
+  if (e.key === "Escape") close()
+}
 
-onMounted(() => window.addEventListener("keydown", handleEsc));
-onUnmounted(() => window.removeEventListener("keydown", handleEsc));
+onMounted(() => window.addEventListener("keydown", handleEsc))
+onUnmounted(() => window.removeEventListener("keydown", handleEsc))
 </script>
 
 <template>

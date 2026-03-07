@@ -1,56 +1,89 @@
 <script setup lang="ts">
-import {computed, ref, watch} from "vue";
-import type {Transaction} from "@/types.ts";
-import {categories} from "@/lib/categories.ts";
-import {useTransactionsStore} from "@/stores/transactions.ts";
+import {computed, ref, watch} from "vue"
+import type {Transaction} from "@/types"
+import {categories} from "@/lib/categories"
+import {useTransactionsStore} from "@/stores/transactions"
+
+const props = defineProps<{
+  transaction: Transaction
+}>()
+
+const emit = defineEmits<{
+  (e: "saved"): void
+}>()
+
+const store = useTransactionsStore()
 
 const form = ref<Omit<Transaction, "id" | "date">>({
-  title: '',
+  title: "",
   amount: 0,
   isIncome: false,
-  categoryId: ''
+  categoryId: ""
 })
 
 const error = ref<string | null>(null)
 
-const store = useTransactionsStore()
+watch(
+    () => props.transaction,
+    (t) => {
+      form.value = {
+        title: t.title,
+        amount: t.amount,
+        isIncome: t.isIncome,
+        categoryId: t.categoryId
+      }
+    },
+    { immediate: true }
+)
 
 const availableCategories = computed(() => {
   return categories.filter(category =>
       form.value.isIncome
-          ? category.type === 'income'
-          : category.type === 'expense'
+          ? category.type === "income"
+          : category.type === "expense"
   )
 })
 
 watch(
     () => form.value.isIncome,
-    () => form.value.categoryId = ''
+    () => form.value.categoryId = ""
 )
 
 function handleSubmit() {
+
   if (form.value.title.trim() === "") {
     error.value = "Выберите описание транзакции"
     return
   }
+
   if (form.value.amount <= 0) {
     error.value = "Сумма транзакции должна быть больше 0"
     return
   }
+
   if (!form.value.categoryId) {
     error.value = "Выберите категорию"
     return
   }
-  store.addTransaction({...form.value, date: new Date().toISOString().split('T')[0]!})
+
+  store.updateTransaction({
+    id: props.transaction.id,
+    date: props.transaction.date,
+    ...form.value
+  })
+
   error.value = null
-  form.value = {title: "", amount: 0, isIncome: false, categoryId: ''}
+  emit("saved")
 }
 </script>
 
 <template>
   <div class="form-container">
     <div class="form">
-      <h2 class="form-title">Добавить транзакцию</h2>
+
+      <h2 class="form-title">
+        Редактировать транзакцию
+      </h2>
 
       <input
           type="text"
@@ -73,8 +106,12 @@ function handleSubmit() {
 
       <select
           v-model="form.categoryId"
-          class="form-input">
-        <option value="" disabled selected>Выберите категорию</option>
+          class="form-input"
+      >
+        <option value="" disabled>
+          Выберите категорию
+        </option>
+
         <option
             v-for="c in availableCategories"
             :key="c.id"
@@ -84,20 +121,21 @@ function handleSubmit() {
         </option>
       </select>
 
-      <p class="error-alert">{{ error }}</p>
+      <p class="error-alert">
+        {{ error }}
+      </p>
 
       <button
           type="button"
-          @click="handleSubmit()"
+          @click="handleSubmit"
           class="form-button"
       >
-        Зафиксировать
+        Сохранить изменения
       </button>
-    </div>
 
+    </div>
   </div>
 </template>
-
 
 <style scoped>
 .form-container {
@@ -135,12 +173,6 @@ function handleSubmit() {
   border-color: #41B883;
 }
 
-.checkbox-wrapper input {
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-}
-
 .form-button {
   margin-top: 10px;
   padding: 12px;
@@ -159,10 +191,6 @@ function handleSubmit() {
 .form-button:hover {
   box-shadow: rgba(30, 87, 61, 0.5) 0 0 30px;
   transition: 300ms;
-}
-
-.form-button:active {
-  transform: translateY(0);
 }
 
 .error-alert {

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import TransactionCard from "@/components/Dashboard/Transactions/TransactionCard.vue";
-import {useTransactionsStore} from "@/stores/transactions";
-import {computed} from "vue";
-import type {Transaction} from "@/types";
+import TransactionCard from "@/components/Dashboard/Transactions/TransactionCard.vue"
+import {useTransactionsStore} from "@/stores/transactions"
+import {computed} from "vue"
+import type {Transaction} from "@/types"
 
 const props = defineProps<{
   onlyExpences: Boolean,
@@ -28,9 +28,9 @@ const transactions = computed<Transaction[]>(() => {
 </script>
 
 <template>
-  <div class="container">
+  <div>
     <div class="header-text">
-      <h3 class="card-title">{{ props.title}}</h3>
+      <h3 class="card-title">{{ props.title }}</h3>
       <p v-if="props.onlyExpences === true" class="card-subtitle">
         Категория: {{ props.selectedCategory }}
       </p>
@@ -47,9 +47,6 @@ const transactions = computed<Transaction[]>(() => {
 </template>
 
 <style scoped>
-.container {
-  padding-left: 10px;
-}
 
 .transaction-list {
   max-height: 520px;
@@ -67,7 +64,7 @@ const transactions = computed<Transaction[]>(() => {
 }
 
 .header-text {
-  padding-bottom: 15px;
+  padding: 16px 0
 }
 
 .card-title {

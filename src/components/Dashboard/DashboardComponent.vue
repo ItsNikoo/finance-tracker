@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import FormComponent from "@/components/FormComponent.vue";
-import BalanceInfoWidget from "@/components/Dashboard/BalanceInfoWidget.vue";
-import TotalBalanceWidget from "@/components/Dashboard/TotalBalanceWidget.vue";
-import {useTransactionsStore} from "@/stores/transactions.ts";
-import MonthToggle from "@/components/UI/MonthToggle.vue";
-import LimitsWidget from "@/components/Dashboard/Limits/LimitsWidget.vue";
-import {ref} from "vue";
-import ModalWindow from "@/components/UI/ModalWindow.vue";
-import TransactionList from "@/components/Dashboard/Transactions/TransactionList.vue";
+import FormComponent from "@/components/UI/Forms/FormComponent.vue"
+import BalanceInfoWidget from "@/components/Dashboard/BalanceInfoWidget.vue"
+import TotalBalanceWidget from "@/components/Dashboard/TotalBalanceWidget.vue"
+import {useTransactionsStore} from "@/stores/transactions.ts"
+import MonthToggle from "@/components/UI/MonthToggle.vue"
+import LimitsWidget from "@/components/Dashboard/Limits/LimitsWidget.vue"
+import {ref} from "vue"
+import ModalWindow from "@/components/UI/ModalWindow.vue"
+import TransactionList from "@/components/Dashboard/Transactions/TransactionList.vue"
 
 const store = useTransactionsStore()
-const isModalOpen = ref<boolean>(false);
+const isModalOpen = ref<boolean>(false)
 </script>
 
 <template>
@@ -26,8 +26,8 @@ const isModalOpen = ref<boolean>(false);
         <FormComponent/>
       </ModalWindow>
       <TotalBalanceWidget :balance="store.periodBalance"/>
-      <BalanceInfoWidget :amount="store.periodIncome" :isIncome="true"/>
-      <BalanceInfoWidget :amount="store.periodExpenses" :isIncome="false"/>
+      <BalanceInfoWidget :title="'Доход'" :amount="store.periodIncome" :isIncome="true"/>
+      <BalanceInfoWidget :title="'Трат'" :amount="store.periodExpenses" :isIncome="false"/>
     </div>
 
     <div class="dashboard-row bottom-row">

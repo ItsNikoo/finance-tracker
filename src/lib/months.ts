@@ -15,6 +15,6 @@ export const months: Month[] = [
   {title: "Сентябрь", key: 9},
   {title: "Октябрь", key: 10},
   {title: "Ноябрь", key: 11},
-  {title: "Декабрь", key: 12},
+  {title: "Декабрь", key: 12}
 
 ]

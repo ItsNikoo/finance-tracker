@@ -1,15 +1,19 @@
-import Tracker from "@/components/Pages/Tracker.vue";
-import Analytics from "@/components/Pages/Analytics.vue";
-import Main from "@/components/Pages/Main.vue";
-import {createRouter, createWebHistory} from "vue-router";
+import TrackerPage from "@/components/Pages/TrackerPage.vue"
+import AnalyticsPage from "@/components/Pages/AnalyticsPage.vue"
+import MainPage from "@/components/Pages/MainPage.vue"
+import {createRouter, createWebHistory} from "vue-router"
 
 const routes = [
-  {path: "/", component: Main},
-  {path: "/tracker", component: Tracker},
-  {path: "/analytics", component: Analytics},
+  {path: "/", component: MainPage},
+  {path: "/tracker", component: TrackerPage},
+  {path: "/analytics", component: AnalyticsPage}
 ]
 
 export const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes,
+
+  scrollBehavior() {
+    return {top: 0}
+  }
 })
