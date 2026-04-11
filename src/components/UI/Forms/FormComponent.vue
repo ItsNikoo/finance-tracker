@@ -3,6 +3,9 @@ import {computed, ref, watch} from "vue"
 import type {Transaction} from "@/types.ts"
 import {categories} from "@/lib/categories.ts"
 import {useTransactionsStore} from "@/stores/transactions.ts"
+import BaseInput from "@/components/Base/BaseInput.vue"
+import BaseSelect from "@/components/Base/BaseSelect.vue"
+import BaseButton from "@/components/Base/BaseButton.vue"
 
 const form = ref<Omit<Transaction, "id" | "date">>({
   title: '',
@@ -41,6 +44,7 @@ function handleSubmit() {
     error.value = "Выберите категорию"
     return
   }
+
   store.addTransaction({...form.value, date: new Date().toISOString().split('T')[0]!})
   error.value = null
   form.value = {title: "", amount: 0, isIncome: false, categoryId: ''}
@@ -52,28 +56,26 @@ function handleSubmit() {
     <div class="form">
       <h2 class="form-title">Добавить транзакцию</h2>
 
-      <input
-          type="text"
+      <BaseInput
           v-model="form.title"
+          type="text"
           placeholder="Описание транзакции"
-          class="form-input"
+          dark-placeholder
       />
 
-      <input
+      <BaseInput
+          v-model="form.amount"
           type="number"
-          v-model.number="form.amount"
           placeholder="Сумма"
-          class="form-input"
+          dark-placeholder
       />
 
-      <select v-model="form.isIncome" class="form-input">
+      <BaseSelect v-model="form.isIncome">
         <option :value="false">Расход</option>
         <option :value="true">Доход</option>
-      </select>
+      </BaseSelect>
 
-      <select
-          v-model="form.categoryId"
-          class="form-input">
+      <BaseSelect v-model="form.categoryId">
         <option value="" disabled selected>Выберите категорию</option>
         <option
             v-for="c in availableCategories"
@@ -82,22 +84,16 @@ function handleSubmit() {
         >
           {{ c.name }}
         </option>
-      </select>
+      </BaseSelect>
 
       <p class="error-alert">{{ error }}</p>
 
-      <button
-          type="button"
-          @click="handleSubmit()"
-          class="form-button"
-      >
+      <BaseButton @click="handleSubmit()" full-width>
         Зафиксировать
-      </button>
+      </BaseButton>
     </div>
-
   </div>
 </template>
-
 
 <style scoped>
 .form-container {
@@ -120,49 +116,6 @@ function handleSubmit() {
   font-weight: 600;
   margin-bottom: 10px;
   font-size: 18px;
-}
-
-.form-input {
-  padding: 12px 14px;
-  border-radius: 10px;
-  border: 1px solid #ddd;
-  font-size: 14px;
-  transition: 0.2s ease;
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: #41B883;
-}
-
-.checkbox-wrapper input {
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-}
-
-.form-button {
-  margin-top: 10px;
-  padding: 12px;
-  border-radius: 10px;
-  border: none;
-
-  background: #2A7956;
-  color: white;
-  font-weight: 600;
-  font-size: 14px;
-
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.form-button:hover {
-  box-shadow: rgba(30, 87, 61, 0.5) 0 0 30px;
-  transition: 300ms;
-}
-
-.form-button:active {
-  transform: translateY(0);
 }
 
 .error-alert {

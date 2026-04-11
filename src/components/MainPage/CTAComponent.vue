@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import BaseButton from "@/components/Base/BaseButton.vue"
 </script>
 
 <template>
@@ -13,12 +14,12 @@
       </p>
 
       <div class="buttons">
-        <RouterLink class="cta-button primary" to="/tracker">
-          Попробовать
+        <RouterLink to="/tracker">
+          <BaseButton size="md">Попробовать</BaseButton>
         </RouterLink>
 
-        <RouterLink class="cta-button secondary" to="/analytics">
-          Аналитика
+        <RouterLink to="/analytics">
+          <BaseButton variant="secondary" size="md">Аналитика</BaseButton>
         </RouterLink>
       </div>
     </div>
@@ -63,39 +64,6 @@
   gap: 15px;
   margin-top: 10px;
 }
-
-/* Кнопки */
-.cta-button {
-  padding: 14px 32px;
-  border-radius: 14px;
-  font-weight: 600;
-  font-size: 16px;
-  text-decoration: none;
-  transition: all 0.3s ease;
-}
-
-/* Основная кнопка */
-.primary {
-  background-color: #2a7956;
-  color: white;
-}
-
-.primary:hover {
-  box-shadow: rgba(30, 87, 61, 0.25) 0 0 30px;
-  transition: 300ms;
-}
-
-/* Вторая кнопка */
-.secondary {
-  border: 2px solid #2a7956;
-  color: #2a7956;
-}
-
-.secondary:hover {
-  box-shadow: rgba(24, 87, 61, 0.25) 0 0 30px;
-  transition: 300ms;
-}
-
 /* ========================= */
 /* 📱 Планшеты */
 /* ========================= */
@@ -133,12 +101,6 @@
 
   .cta-subtitle {
     font-size: 14px;
-  }
-
-  .cta-button {
-    font-size: 14px;
-    padding: 10px 24px ;
-    text-align: center;
   }
 }
 </style>

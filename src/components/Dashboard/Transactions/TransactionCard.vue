@@ -5,6 +5,7 @@ import {categories} from "@/lib/categories.ts"
 import {ref} from "vue"
 import ModalWindow from "@/components/UI/ModalWindow.vue"
 import EditTransactionForm from "@/components/UI/Forms/EditTransactionForm.vue"
+import BaseButton from "@/components/Base/BaseButton.vue"
 
 const props = defineProps<{
   transaction: Transaction;
@@ -63,12 +64,12 @@ function categoryTitleMapper(id: string) {
       </p>
 
       <div class="crud">
-        <button @click="handleEdit" class="button">
+        <BaseButton @click="handleEdit" variant="icon" class="button">
           <img class="remove-icon" src="/edit.png" alt="Редактировать"/>
-        </button>
-        <button @click="handleDelete" class="button">
+        </BaseButton>
+        <BaseButton @click="handleDelete" variant="icon" class="button">
           <img class="remove-icon" src="/trash-can.png" alt="Удалить"/>
-        </button>
+        </BaseButton>
       </div>
     </div>
   </div>
@@ -98,8 +99,6 @@ function categoryTitleMapper(id: string) {
 
   border: 1px solid rgba(42, 121, 86, 0.2);
 }
-
-/* ───────── LEFT ───────── */
 
 .left {
   display: flex;
@@ -160,8 +159,6 @@ function categoryTitleMapper(id: string) {
   text-overflow: ellipsis;
 }
 
-/* ───────── RIGHT ───────── */
-
 .right {
   display: flex;
   align-items: center;
@@ -189,23 +186,7 @@ function categoryTitleMapper(id: string) {
 }
 
 .button {
-  width: 32px;
-  height: 32px;
-  background: #ffffff;
-  border: none;
   border-radius: 10px;
-  cursor: pointer;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  transition: all 0.18s ease;
-  flex-shrink: 0;
-}
-
-.button:hover {
-  background: #1E573D;
 }
 
 .remove-icon {
@@ -213,8 +194,6 @@ function categoryTitleMapper(id: string) {
   height: 18px;
   transition: filter 0.18s ease;
 }
-
-/* ───────── АДАПТИВ ───────── */
 
 @media (max-width: 600px) {
   .transaction-card {

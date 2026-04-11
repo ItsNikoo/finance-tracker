@@ -1,5 +1,6 @@
 <script setup lang="ts">
 
+import BaseButton from "@/components/Base/BaseButton.vue"
 </script>
 
 <template>
@@ -10,7 +11,9 @@
         <p class="subtitle">Ваш персональный финансовый ассистент</p>
         <div class="cta">
           <p class="cta-paragraph">Попробуйте уже сейчас!</p>
-          <RouterLink to="/tracker" class="cta-button">Начать бесплатно</RouterLink>
+          <RouterLink to="/tracker">
+            <BaseButton variant="primary" size="md">Начать бесплатно</BaseButton>
+          </RouterLink>
         </div>
       </div>
       <img class="image" src="/Graph.jpg" alt="График на главной">
@@ -58,33 +61,13 @@
   align-items: center;
 }
 
-.cta-button {
-  background-color: #2A7956;
-  color: white;
-  border: none;
-  border-radius: 15px;
-  padding: 15px 30px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  text-decoration: none;
-}
-
-.cta-button:active {
-  background-color: #1E573D;
-}
-
-.cta-button:hover {
-  box-shadow: rgba(30, 87, 61, 0.25) 0 0 30px;
-  transition: 300ms;
-}
 
 .image {
   width: 60%;
 }
 
 @media (max-width: 1310px) {
-  .main-page{
+  .main-page {
     margin-top: 100px;
   }
 
@@ -92,7 +75,7 @@
     font-size: 50px;
   }
 
-  .subtitle{
+  .subtitle {
     font-size: 18px;
   }
 

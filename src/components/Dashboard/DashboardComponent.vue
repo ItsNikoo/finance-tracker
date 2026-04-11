@@ -8,6 +8,7 @@ import LimitsWidget from "@/components/Dashboard/Limits/LimitsWidget.vue"
 import {ref} from "vue"
 import ModalWindow from "@/components/UI/ModalWindow.vue"
 import TransactionList from "@/components/Dashboard/Transactions/TransactionList.vue"
+import BaseButton from "@/components/Base/BaseButton.vue"
 
 const store = useTransactionsStore()
 const isModalOpen = ref<boolean>(false)
@@ -18,9 +19,9 @@ const isModalOpen = ref<boolean>(false)
     <MonthToggle/>
 
     <div class="dashboard-row top-row">
-      <button class="add-transaction-card" @click="isModalOpen = true">
+      <BaseButton class="add-transaction-card" size="lg" @click="isModalOpen = true">
         Добавить транзакцию
-      </button>
+      </BaseButton>
 
       <ModalWindow v-model="isModalOpen">
         <FormComponent/>
@@ -31,7 +32,7 @@ const isModalOpen = ref<boolean>(false)
     </div>
 
     <div class="dashboard-row bottom-row">
-        <TransactionList :title="'Транзакции'" :only-expences="false" />
+      <TransactionList :title="'Транзакции'" :only-expences="false" />
       <div>
         <h3 class="container-title">Лимиты</h3>
         <LimitsWidget/>
@@ -60,24 +61,16 @@ const isModalOpen = ref<boolean>(false)
   grid-template-columns: 1fr 1fr;
 }
 
-.add-transaction-card{
-  background: #2A7956;
-  color: white;
+.add-transaction-card {
   border-radius: 12px;
-  padding: 24px;
-
-  font-size: 18px;
-  font-weight: bolder;
-  border: none;
-
-  cursor: pointer;
+  justify-content: flex-start;
 }
 
-.add-transaction-card:active{
+.add-transaction-card:active {
   background-color: #1E573D;
 }
 
-.container-title{
+.container-title {
   color: #313131;
   font-size: 20px;
   margin-bottom: 10px;
