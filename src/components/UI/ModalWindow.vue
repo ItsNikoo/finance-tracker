@@ -25,7 +25,7 @@ onUnmounted(() => window.removeEventListener("keydown", handleEsc))
       <div v-if="props.modelValue" class="overlay" @click="close">
         <div class="modal" @click.stop>
           <slot/>
-          <button class="close-btn" @click="close">×</button>
+          <button class="close-btn" aria-label="Закрыть" @click="close">×</button>
         </div>
       </div>
     </Transition>
@@ -41,6 +41,8 @@ onUnmounted(() => window.removeEventListener("keydown", handleEsc))
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  padding: 16px;
+  box-sizing: border-box;
 }
 
 .modal {
@@ -48,16 +50,20 @@ onUnmounted(() => window.removeEventListener("keydown", handleEsc))
   padding: 32px;
   border-radius: 16px;
   min-width: 300px;
+  max-width: min(100vw - 32px, 560px);
   position: relative;
+  box-sizing: border-box;
 }
 
 .close-btn {
   position: absolute;
-  top: 12px;
+  top: 10px;
   right: 16px;
   background: none;
   border: none;
-  font-size: 20px;
+  font-size: 28px;
+  line-height: 1;
   cursor: pointer;
+  color: #6b7280;
 }
 </style>
