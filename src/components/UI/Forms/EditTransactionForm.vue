@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {computed, ref, watch} from "vue"
 import type {Transaction} from "@/types"
-import {categories} from "@/lib/categories"
 import {useTransactionsStore} from "@/stores/transactions"
 import BaseInput from "@/components/Base/BaseInput.vue"
 import BaseSelect from "@/components/Base/BaseSelect.vue"
@@ -17,44 +16,46 @@ const emit = defineEmits<{
 
 const store = useTransactionsStore()
 
-const form = ref<Omit<Transaction, "id" | "date">>({
+const form = ref({
   title: "",
   amount: 0,
   isIncome: false,
-  categoryId: ""
+  categoryId: "" as number | ""
 })
 
 const error = ref<string | null>(null)
 
 watch(
-    () => props.transaction,
-    (t) => {
-      form.value = {
-        title: t.title,
-        amount: t.amount,
-        isIncome: t.isIncome,
-        categoryId: t.categoryId
-      }
-    },
-    { immediate: true }
+  () => props.transaction,
+  (transaction) => {
+    form.value = {
+      title: transaction.title,
+      amount: transaction.amount,
+      isIncome: transaction.isIncome,
+      categoryId: transaction.categoryId
+    }
+  },
+  {immediate: true}
 )
 
-const availableCategories = computed(() => {
-  return categories.filter(category =>
-      form.value.isIncome
-          ? category.type === "income"
-          : category.type === "expense"
+const availableCategories = computed(() =>
+  store.categories.filter(category =>
+    form.value.isIncome
+      ? category.type === "income"
+      : category.type === "expense"
   )
-})
+)
 
 watch(
-    () => form.value.isIncome,
-    () => form.value.categoryId = ""
+  () => form.value.isIncome,
+  () => {
+    form.value.categoryId = ""
+  }
 )
 
-function handleSubmit() {
+async function handleSubmit() {
   if (form.value.title.trim() === "") {
-    error.value = "Выберите описание транзакции"
+    error.value = "Введите описание транзакции"
     return
   }
 
@@ -63,39 +64,49 @@ function handleSubmit() {
     return
   }
 
-  if (!form.value.categoryId) {
+  if (form.value.categoryId === "") {
     error.value = "Выберите категорию"
     return
   }
 
-  store.updateTransaction({
-    id: props.transaction.id,
-    date: props.transaction.date,
-    ...form.value
-  })
+  try {
+    error.value = null
 
-  error.value = null
-  emit("saved")
+    await store.updateTransaction({
+      id: props.transaction.id,
+      date: props.transaction.date,
+      title: form.value.title,
+      amount: form.value.amount,
+      isIncome: form.value.isIncome,
+      categoryId: form.value.categoryId
+    })
+
+    emit("saved")
+  } catch (submitError) {
+    error.value = submitError instanceof Error
+      ? submitError.message
+      : "Не удалось обновить транзакцию"
+  }
 }
 </script>
 
 <template>
   <div class="form-container">
     <div class="form">
-      <h2 class="form-title">
-        Редактировать транзакцию
-      </h2>
+      <h2 class="form-title">Редактировать транзакцию</h2>
 
       <BaseInput
           v-model="form.title"
           type="text"
           placeholder="Описание транзакции"
+          dark-placeholder
       />
 
       <BaseInput
           v-model="form.amount"
           type="number"
           placeholder="Сумма"
+          dark-placeholder
       />
 
       <BaseSelect v-model="form.isIncome">
@@ -104,22 +115,17 @@ function handleSubmit() {
       </BaseSelect>
 
       <BaseSelect v-model="form.categoryId">
-        <option value="" disabled>
-          Выберите категорию
-        </option>
-
+        <option value="" disabled>Выберите категорию</option>
         <option
-            v-for="c in availableCategories"
-            :key="c.id"
-            :value="c.id"
+            v-for="category in availableCategories"
+            :key="category.id"
+            :value="category.id"
         >
-          {{ c.name }}
+          {{ category.name }}
         </option>
       </BaseSelect>
 
-      <p class="error-alert">
-        {{ error }}
-      </p>
+      <p class="error-alert">{{ error }}</p>
 
       <BaseButton @click="handleSubmit" full-width>
         Сохранить изменения
@@ -139,7 +145,6 @@ function handleSubmit() {
   display: flex;
   flex-direction: column;
   gap: 10px;
-
   width: 100%;
   max-width: 420px;
 }

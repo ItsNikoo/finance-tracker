@@ -1,99 +1,203 @@
 import {defineStore} from "pinia"
 import {computed, ref, watch} from "vue"
-import type {CategorySelection, Transaction} from "@/types.ts"
-import {generateMockTransactions} from "@/lib/mockGenerator.ts"
-import {categories} from "@/lib/categories.ts"
+import {buildAuthorizedHeaders, FINANCE_ENDPOINTS} from "@/lib/authContract"
+import {defaultCategorySeed} from "@/lib/defaultFinanceData"
+import {useAuthStore} from "@/stores/auth"
+import type {Category, CategorySelection, Transaction} from "@/types"
 
-export const useTransactionsStore = defineStore("transactions", () => {
-  const STORAGE_KEY = "transactions"
+interface BackendCategory {
+  category_id: number
+  category_name: string
+  category_type: string
+}
 
-  const transactions = ref<Transaction[]>([])
-  const selectedMonth = ref<number | 'all'>('all')
-  const selectedCategory = ref<string>("Все")
+interface BackendTransaction {
+  transaction_id: number
+  user_id: number
+  amount: number | string
+  comment: string | null
+  date: string
+  is_income: boolean
+  category_id: number
+}
 
-  let nextId = 1
+interface TransactionDraft {
+  title: string
+  amount: number
+  isIncome: boolean
+  categoryId: number
+  date: string
+}
 
-  function loadDataFromLocalStorage() {
-    const data = localStorage.getItem(STORAGE_KEY)
+function normalizeCategoryType(type: string): "income" | "expense" {
+  return type === "income" || type === "доход" ? "income" : "expense"
+}
 
-    if (data) {
-      try {
-        const parsed = JSON.parse(data) as Transaction[]
-        transactions.value = parsed
+function mapCategory(category: BackendCategory): Category {
+  return {
+    id: category.category_id,
+    name: category.category_name,
+    type: normalizeCategoryType(category.category_type)
+  }
+}
 
-        if (parsed.length > 0) {
-          const maxId = Math.max(...parsed.map(item => item.id))
-          nextId = maxId + 1
-        }
-        return
-      } catch (err) {
-        console.warn("Повреждённые данные → очищаем", err)
-        localStorage.removeItem(STORAGE_KEY)
-      }
-    }
+function mapTransaction(transaction: BackendTransaction): Transaction {
+  return {
+    id: transaction.transaction_id,
+    title: transaction.comment?.trim() || "Без описания",
+    amount: Number(transaction.amount),
+    isIncome: transaction.is_income,
+    categoryId: transaction.category_id,
+    date: transaction.date
+  }
+}
 
-    const mockGenerated = localStorage.getItem("mock_transactions_generated")
-
-    if (mockGenerated === "true") {
-      console.log("Моковые данные уже были сгенерированы ранее → пропускаем")
-      transactions.value = []
-      return
-    }
-
-    console.log("Генерируем mock-транзакции впервые...")
-    const generated = generateMockTransactions()
-
-    transactions.value = generated
-
-    if (generated.length > 0) {
-      nextId = Math.max(...generated.map(t => t.id)) + 1
-    }
-
-    localStorage.setItem("mock_transactions_generated", "true")
+async function readApiError(response: Response, fallbackMessage: string) {
+  try {
+    const data = await response.json()
+    if (typeof data?.detail === "string") return data.detail
+  } catch {
+    return fallbackMessage
   }
 
-  loadDataFromLocalStorage()
+  return fallbackMessage
+}
 
-  watch(
-    transactions,
-    (newValue) => {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newValue))
-    },
-    {deep: true}
-  )
+export const useTransactionsStore = defineStore("transactions", () => {
+  const authStore = useAuthStore()
 
-  function setSelectedMonth(value: number | 'all') {
+  const transactions = ref<Transaction[]>([])
+  const categories = ref<Category[]>([])
+  const selectedMonth = ref<number | "all">(new Date().getMonth() + 1)
+  const selectedCategory = ref<string>("Все")
+  const isLoading = ref(false)
+  const isCategoriesLoading = ref(false)
+  const initializedUserId = ref<number | null>(null)
+
+  function setSelectedMonth(value: number | "all") {
     selectedMonth.value = value
   }
 
   function setSelectedCategory(category: string) {
-    // Toggle логика
     selectedCategory.value =
       selectedCategory.value === category
-        ? 'Все'
+        ? "Все"
         : category
   }
 
-  // Геттеры
-  const totalIncome = computed(() => {
-    let sum = 0
-    for (const o of transactions.value) {
-      if (o.isIncome) {
-        sum += o.amount
-      }
-    }
-    return sum
-  })
+  const categoryMap = computed(() =>
+    new Map(categories.value.map(category => [category.id, category]))
+  )
 
-  const totalExpenses = computed(() => {
-    let sum = 0
-    for (const o of transactions.value) {
-      if (!o.isIncome) {
-        sum += o.amount
+  function categoryNameById(categoryId: number) {
+    return categoryMap.value.get(categoryId)?.name || `Категория #${categoryId}`
+  }
+
+  async function fetchCategories() {
+    const response = await fetch(FINANCE_ENDPOINTS.categories, {
+      method: "GET",
+      headers: {
+        Accept: "application/json"
       }
+    })
+
+    if (!response.ok) {
+      throw new Error(await readApiError(response, "Не удалось загрузить категории"))
     }
-    return sum
-  })
+
+    const payload = await response.json() as BackendCategory[]
+    categories.value = payload.map(mapCategory)
+  }
+
+  async function ensureCategoriesLoaded() {
+    if (isCategoriesLoading.value) return
+
+    isCategoriesLoading.value = true
+
+    try {
+      await fetchCategories()
+
+      if (categories.value.length === 0) {
+        for (const category of defaultCategorySeed) {
+          await fetch(FINANCE_ENDPOINTS.categories, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json"
+            },
+            body: JSON.stringify({
+              category_name: category.name,
+              category_type: category.type
+            })
+          })
+        }
+
+        await fetchCategories()
+      }
+    } finally {
+      isCategoriesLoading.value = false
+    }
+  }
+
+  async function fetchTransactions() {
+    if (!authStore.isAuthenticated) {
+      transactions.value = []
+      return
+    }
+
+    await ensureCategoriesLoaded()
+
+    const response = await fetch(FINANCE_ENDPOINTS.transactions, {
+      method: "GET",
+      credentials: "include",
+      headers: buildAuthorizedHeaders()
+    })
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        transactions.value = []
+        return
+      }
+
+      throw new Error(await readApiError(response, "Не удалось загрузить транзакции"))
+    }
+
+    const payload = await response.json() as BackendTransaction[]
+    transactions.value = payload.map(mapTransaction)
+  }
+
+  async function initializeTransactions() {
+    const currentUserId = authStore.user?.userId ?? null
+
+    if (currentUserId === null) {
+      transactions.value = []
+      initializedUserId.value = null
+      return
+    }
+
+    if (initializedUserId.value === currentUserId) return
+
+    isLoading.value = true
+
+    try {
+      await fetchTransactions()
+      initializedUserId.value = currentUserId
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const totalIncome = computed(() =>
+    transactions.value
+      .filter(transaction => transaction.isIncome)
+      .reduce((sum, transaction) => sum + transaction.amount, 0)
+  )
+
+  const totalExpenses = computed(() =>
+    transactions.value
+      .filter(transaction => !transaction.isIncome)
+      .reduce((sum, transaction) => sum + transaction.amount, 0)
+  )
 
   const groupedByMonth = computed(() => {
     const map = new Map<number, {
@@ -105,13 +209,13 @@ export const useTransactionsStore = defineStore("transactions", () => {
       transactions: Transaction[]
     }>()
 
-    transactions.value.forEach(t => {
-      const monthNum = Number(t.date.split('-')[1]) // 01 → 1, 02 → 2, ...
+    transactions.value.forEach(transaction => {
+      const monthNum = Number(transaction.date.split("-")[1])
 
       if (!map.has(monthNum)) {
         map.set(monthNum, {
           month: monthNum,
-          title: new Date(2000, monthNum - 1, 1).toLocaleString('ru-RU', {month: 'long'}),
+          title: new Date(2000, monthNum - 1, 1).toLocaleString("ru-RU", {month: "long"}),
           income: 0,
           expense: 0,
           balance: 0,
@@ -119,150 +223,165 @@ export const useTransactionsStore = defineStore("transactions", () => {
         })
       }
 
-      const group = map.get(monthNum)!
-      group.transactions.push(t)
+      const group = map.get(monthNum)
+      if (!group) return
 
-      if (t.isIncome) group.income += t.amount
-      else group.expense += t.amount
+      group.transactions.push(transaction)
+
+      if (transaction.isIncome) group.income += transaction.amount
+      else group.expense += transaction.amount
+
       group.balance = group.income - group.expense
     })
 
-    // Сортировка от декабря к январю (или наоборот)
-    return Array.from(map.values())
-      .sort((a, b) => b.month - a.month) // новые сверху
+    return Array.from(map.values()).sort((a, b) => b.month - a.month)
   })
 
   const filteredTransactions = computed(() => {
-    if (selectedMonth.value === 'all') {
+    if (selectedMonth.value === "all") {
       return transactions.value
     }
 
-    // Находим группу по выбранному месяцу
-    const group = groupedByMonth.value.find(g => g.month === selectedMonth.value)
-
+    const group = groupedByMonth.value.find(item => item.month === selectedMonth.value)
     return group ? group.transactions : []
   })
 
   const groupedExpencesByCategory = computed(() => {
-    const map = new Map<string, CategorySelection>()
+    const map = new Map<number, CategorySelection>()
 
-    const selected = selectedMonth.value
-
-    const relevantTransactions = selected === 'all'
+    const relevantTransactions = selectedMonth.value === "all"
       ? transactions.value
-      : transactions.value.filter(t => {
-        const monthNum = Number(t.date.split('-')[1])
-        return monthNum === selected
-      })
+      : transactions.value.filter(transaction => Number(transaction.date.split("-")[1]) === selectedMonth.value)
 
     relevantTransactions
-      .filter(t => !t.isIncome)
-      .forEach(t => {
-        if (!map.has(t.categoryId)) {
-          const category = categories.find(c => c.id === t.categoryId)
-          const name = category ? category.name : t.categoryId
-
-          map.set(t.categoryId, {
-            categoryId: t.categoryId,
-            name,
+      .filter(transaction => !transaction.isIncome)
+      .forEach(transaction => {
+        if (!map.has(transaction.categoryId)) {
+          map.set(transaction.categoryId, {
+            categoryId: transaction.categoryId,
+            name: categoryNameById(transaction.categoryId),
             total: 0,
             count: 0,
             transactions: []
           })
         }
 
-        const group = map.get(t.categoryId)!
-        group.total += t.amount
+        const group = map.get(transaction.categoryId)
+        if (!group) return
+
+        group.total += transaction.amount
         group.count += 1
-        group.transactions.push(t)
+        group.transactions.push(transaction)
       })
 
-    return Array.from(map.values())
-      .sort((a, b) => b.total - a.total)
+    return Array.from(map.values()).sort((a, b) => b.total - a.total)
   })
 
   const periodIncome = computed(() => {
-    if (selectedMonth.value === 'all') {
-      return totalIncome.value
-    }
-
-    // Используем уже подсчитанные данные из группы
-    const group = groupedByMonth.value.find(g => g.month === selectedMonth.value)
-    return group ? group.income : 0
+    if (selectedMonth.value === "all") return totalIncome.value
+    return groupedByMonth.value.find(group => group.month === selectedMonth.value)?.income || 0
   })
 
   const periodExpenses = computed(() => {
-    if (selectedMonth.value === 'all') {
-      return totalExpenses.value
-    }
-
-    const group = groupedByMonth.value.find(g => g.month === selectedMonth.value)
-    return group ? group.expense : 0
+    if (selectedMonth.value === "all") return totalExpenses.value
+    return groupedByMonth.value.find(group => group.month === selectedMonth.value)?.expense || 0
   })
 
   const periodBalance = computed(() => {
-    if (selectedMonth.value === 'all') {
-      return totalIncome.value - totalExpenses.value
-    }
-
-    const group = groupedByMonth.value.find(g => g.month === selectedMonth.value)
-    return group ? group.balance : 0
+    if (selectedMonth.value === "all") return totalIncome.value - totalExpenses.value
+    return groupedByMonth.value.find(group => group.month === selectedMonth.value)?.balance || 0
   })
 
-  // Действия
-  function generateId(): number {
-    return nextId++
+  async function addTransaction(form: TransactionDraft) {
+    const response = await fetch(FINANCE_ENDPOINTS.transactions, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        ...buildAuthorizedHeaders(),
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        amount: form.amount,
+        comment: form.title.trim(),
+        date: form.date,
+        is_income: form.isIncome,
+        category_id: form.categoryId
+      })
+    })
+
+    if (!response.ok) {
+      throw new Error(await readApiError(response, "Не удалось создать транзакцию"))
+    }
+
+    const payload = await response.json() as BackendTransaction
+    transactions.value.push(mapTransaction(payload))
   }
 
-  function addTransaction(form: Omit<Transaction, "id" | "date"> & { date: string }) {
-    if (form.amount <= 0) return
-
-    const date: string = form.date ?? new Date().toISOString().split('T')[0]
-
-    transactions.value.push({
-      id: generateId(),
-      title: form.title.trim(),
-      amount: form.amount,
-      isIncome: form.isIncome,
-      categoryId: form.categoryId,
-      date
+  async function updateTransaction(updated: Transaction) {
+    // Backend does not expose transaction update endpoint yet,
+    // so we safely emulate edit via delete + create to keep data on the server.
+    await deleteTransaction(updated.id)
+    await addTransaction({
+      title: updated.title,
+      amount: updated.amount,
+      isIncome: updated.isIncome,
+      categoryId: updated.categoryId,
+      date: updated.date
     })
   }
 
-  function updateTransaction(updated: Transaction) {
-    const index = transactions.value.findIndex(t => t.id === updated.id)
+  async function deleteTransaction(id: number) {
+    const response = await fetch(`${FINANCE_ENDPOINTS.transactions}/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+      headers: buildAuthorizedHeaders()
+    })
 
-    if (index === -1) return
+    if (!response.ok) {
+      throw new Error(await readApiError(response, "Не удалось удалить транзакцию"))
+    }
 
-    transactions.value[index] = {...updated}
+    transactions.value = transactions.value.filter(transaction => transaction.id !== id)
   }
 
-  function deleteTransaction(id: number) {
-    transactions.value = transactions.value.filter(t => t.id !== id)
-  }
+  watch(
+    () => authStore.user?.userId ?? null,
+    async (userId) => {
+      if (!userId) {
+        transactions.value = []
+        initializedUserId.value = null
+        selectedCategory.value = "Все"
+        return
+      }
+
+      await initializeTransactions()
+    },
+    {immediate: true}
+  )
 
   return {
     transactions,
+    categories,
+    isLoading,
     totalIncome,
     totalExpenses,
-
     groupedExpencesByCategory,
-    categoryExpenses: (categoryId: string) => groupedExpencesByCategory.value.find(g => g.categoryId === categoryId),
-
+    categoryExpenses: (categoryId: number) => groupedExpencesByCategory.value.find(group => group.categoryId === categoryId),
     addTransaction,
     updateTransaction,
     deleteTransaction,
-
     groupedByMonth,
-
     selectedMonth,
     setSelectedMonth,
     selectedCategory,
     setSelectedCategory,
-
     filteredTransactions,
     periodIncome,
     periodExpenses,
-    periodBalance
+    periodBalance,
+    ensureCategoriesLoaded,
+    initializeTransactions,
+    fetchTransactions,
+    categoryNameById
   }
 })

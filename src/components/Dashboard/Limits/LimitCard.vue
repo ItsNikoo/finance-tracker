@@ -1,35 +1,30 @@
 <script setup lang="ts">
-import type {Limit} from "@/types.ts"
 import {computed} from "vue"
+import type {Limit} from "@/types.ts"
 
 const props = defineProps<{
   limit: Limit
   expences: number
-  selectedMonth: number | 'all'
+  selectedMonth: number | "all"
 }>()
 
-// 🔥 Эффективный лимит
-const effectiveLimit = computed(() => {
-  return props.selectedMonth === 'all'
-      ? props.limit.limit * 12
-      : props.limit.limit
-})
+const effectiveLimit = computed(() =>
+  props.selectedMonth === "all"
+    ? props.limit.limit * 12
+    : props.limit.limit
+)
 
 const percent = computed(() => {
   if (effectiveLimit.value === 0) return 0
   return Math.min((props.expences / effectiveLimit.value) * 100, 100)
 })
 
-const remaining = computed(() => {
-  return effectiveLimit.value - props.expences
-})
+const remaining = computed(() => effectiveLimit.value - props.expences)
 
 const progressColor = computed(() => {
-  return percent.value < 60
-      ? '#2a7956'
-      : percent.value < 85
-          ? '#f59e0b'
-          : '#d9534f'
+  if (percent.value < 60) return "#2a7956"
+  if (percent.value < 85) return "#f59e0b"
+  return "#d9534f"
 })
 </script>
 
@@ -42,22 +37,22 @@ const progressColor = computed(() => {
         <div
             class="progress-bar"
             :style="{ width: `${percent}%`, backgroundColor: progressColor }"
-        ></div>
+        />
       </div>
     </div>
 
     <div class="right">
       <div class="amount-wrapper">
-        <span class="spent">{{ props.expences.toLocaleString('ru-RU') }}</span>
+        <span class="spent">{{ props.expences.toLocaleString("ru-RU") }}</span>
         <span class="slash"> / </span>
         <span class="limit">
-          {{ effectiveLimit.toLocaleString('ru-RU') }} ₽
+          {{ effectiveLimit.toLocaleString("ru-RU") }} ₽
         </span>
       </div>
 
       <div class="remaining" :class="{ negative: remaining < 0 }">
-        {{ remaining >= 0 ? 'Осталось' : 'Перерасход' }}
-        {{ Math.abs(remaining).toLocaleString('ru-RU') }} ₽
+        {{ remaining >= 0 ? "Осталось" : "Перерасход" }}
+        {{ Math.abs(remaining).toLocaleString("ru-RU") }} ₽
       </div>
     </div>
   </div>

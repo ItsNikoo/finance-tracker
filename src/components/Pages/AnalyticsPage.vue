@@ -17,14 +17,12 @@ const store = useTransactionsStore()
 
     <MonthToggle class="month-toggle"/>
 
-    <!-- Карточки -->
     <div class="stats-grid">
       <TotalBalanceWidget :balance="store.periodBalance"/>
       <BalanceInfoWidget :title="'Доход'" :amount="store.periodIncome" :isIncome="true"/>
-      <BalanceInfoWidget :title="'Трат'" :amount="store.periodExpenses" :isIncome="false"/>
+      <BalanceInfoWidget :title="'Расход'" :amount="store.periodExpenses" :isIncome="false"/>
     </div>
 
-    <!-- Графики 2/3 -->
     <div class="analytics-grid">
       <div class="charts-section">
         <ExpencesChartsContainer/>
@@ -37,6 +35,7 @@ const store = useTransactionsStore()
         />
       </div>
     </div>
+
     <div class="analytics-grid">
       <div class="charts-section">
         <StatsByMonth/>
@@ -73,14 +72,10 @@ const store = useTransactionsStore()
   margin-bottom: 20px;
 }
 
-.charts-section {
-  min-width: 0;
-}
-
+.charts-section,
 .expenses-section {
   min-width: 0;
 }
-
 
 @media (max-width: 1024px) {
   .analytics-page {
@@ -95,10 +90,6 @@ const store = useTransactionsStore()
     grid-template-columns: 1fr;
   }
 }
-
-/* ========================= */
-/* 📱 Телефоны */
-/* ========================= */
 
 @media (max-width: 768px) {
   .analytics-page {

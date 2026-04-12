@@ -1,42 +1,138 @@
 import {defineStore} from "pinia"
-import {ref} from "vue"
-import type {Limit} from "@/types.ts"
-import {generateLimits} from "@/lib/limitGenerator.ts"
+import {ref, watch} from "vue"
+import {buildAuthorizedHeaders, FINANCE_ENDPOINTS} from "@/lib/authContract"
+import {defaultLimitSeed} from "@/lib/defaultFinanceData"
+import {useAuthStore} from "@/stores/auth"
+import {useTransactionsStore} from "@/stores/transactions"
+import type {Limit} from "@/types"
+
+interface BackendLimit {
+  limit_id: number
+  user_id: number
+  category_id: number
+  limit_amount: number | string
+}
+
+function mapLimit(limit: BackendLimit, categoryNameById: (categoryId: number) => string): Limit {
+  return {
+    id: limit.limit_id,
+    categoryId: limit.category_id,
+    name: categoryNameById(limit.category_id),
+    limit: Number(limit.limit_amount)
+  }
+}
+
+async function readApiError(response: Response, fallbackMessage: string) {
+  try {
+    const data = await response.json()
+    if (typeof data?.detail === "string") return data.detail
+  } catch {
+    return fallbackMessage
+  }
+
+  return fallbackMessage
+}
 
 export const useLimitsStore = defineStore("limits", () => {
-  const LIMITS_KEY = "limits"
+  const authStore = useAuthStore()
+  const transactionsStore = useTransactionsStore()
+
   const limits = ref<Limit[]>([])
+  const isLoading = ref(false)
+  const initializedUserId = ref<number | null>(null)
 
-
-  function loadLimitsFromLocalStorage() {
-    const data = localStorage.getItem(LIMITS_KEY)
-
-    if (data) {
-      try {
-        limits.value = JSON.parse(data) as Limit[]
-        return
-      } catch (err) {
-        console.warn("проблема с бюджетами", err)
-        localStorage.removeItem(LIMITS_KEY)
-      }
-    }
-
-    const limitsGenerated = localStorage.getItem("mock_limits_generated")
-
-    if (limitsGenerated === "true") {
-      console.log("Моковые данные уже были сгенерированы ранее → пропускаем")
+  async function fetchLimits() {
+    if (!authStore.isAuthenticated) {
       limits.value = []
       return
     }
 
-    console.log("Генерируем mock-бюджеты впервые...")
-    generateLimits()
-    localStorage.setItem("mock_limits_generated", "true")
+    await transactionsStore.ensureCategoriesLoaded()
+
+    const response = await fetch(FINANCE_ENDPOINTS.limits, {
+      method: "GET",
+      credentials: "include",
+      headers: buildAuthorizedHeaders()
+    })
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        limits.value = []
+        return
+      }
+
+      throw new Error(await readApiError(response, "Не удалось загрузить лимиты"))
+    }
+
+    const payload = await response.json() as BackendLimit[]
+    limits.value = payload.map(limit => mapLimit(limit, transactionsStore.categoryNameById))
   }
 
-  loadLimitsFromLocalStorage()
+  async function ensureDefaultLimits() {
+    await fetchLimits()
 
-  return{
-    limits
+    if (limits.value.length > 0) return
+
+    for (const item of defaultLimitSeed) {
+      const category = transactionsStore.categories.find(current => current.name === item.categoryName && current.type === "expense")
+      if (!category) continue
+
+      await fetch(FINANCE_ENDPOINTS.limits, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          ...buildAuthorizedHeaders(),
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          category_id: category.id,
+          limit_amount: item.amount
+        })
+      })
+    }
+
+    await fetchLimits()
+  }
+
+  async function initializeLimits() {
+    const currentUserId = authStore.user?.userId ?? null
+
+    if (currentUserId === null) {
+      limits.value = []
+      initializedUserId.value = null
+      return
+    }
+
+    if (initializedUserId.value === currentUserId) return
+
+    isLoading.value = true
+
+    try {
+      await ensureDefaultLimits()
+      initializedUserId.value = currentUserId
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  watch(
+    () => authStore.user?.userId ?? null,
+    async (userId) => {
+      if (!userId) {
+        limits.value = []
+        initializedUserId.value = null
+        return
+      }
+
+      await initializeLimits()
+    },
+    {immediate: true}
+  )
+
+  return {
+    limits,
+    isLoading,
+    fetchLimits,
+    initializeLimits
   }
 })

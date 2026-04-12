@@ -1,5 +1,5 @@
 export interface Category {
-  id: string
+  id: number
   name: string
   type: "income" | "expense"
 }
@@ -9,20 +9,21 @@ export interface Transaction {
   title: string
   amount: number
   isIncome: boolean
-  categoryId: string
+  categoryId: number
   date: string
 }
 
 export interface Limit {
-  categoryId: string
+  id: number
+  categoryId: number
   name: string
   limit: number
 }
 
-export interface CategorySelection{
-  categoryId: string,
-  name: string,
-  total: number,
-  count: number,
+export interface CategorySelection {
+  categoryId: number
+  name: string
+  total: number
+  count: number
   transactions: Transaction[]
 }

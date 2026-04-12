@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import {computed} from "vue"
 import {useTransactionsStore} from "@/stores/transactions.ts"
 
-// Принимаем данные через props
 const props = defineProps<{
   labels: string[]
   values: number[]
@@ -15,21 +14,17 @@ const chartSeries = computed(() => props.values)
 
 const chartOptions = computed(() => ({
   chart: {
-    type: 'donut',
+    type: "donut",
     height: 350,
-    toolbar: { show: false },
+    toolbar: {show: false},
     events: {
       dataPointSelection: (
-          _event: MouseEvent,
-          _chartContext: unknown,
-          config: { dataPointIndex: number }
+        _event: MouseEvent,
+        _chartContext: unknown,
+        config: { dataPointIndex: number }
       ) => {
-        const index = config.dataPointIndex
-        const category = props.labels[index]
-
-        if (!category) return
-
-        if (category){
+        const category = props.labels[config.dataPointIndex]
+        if (category) {
           store.setSelectedCategory(category)
         }
       }
@@ -37,53 +32,52 @@ const chartOptions = computed(() => ({
   },
   labels: props.labels,
   legend: {
-    position: 'bottom',
-    fontSize: '14px',
+    position: "bottom",
+    fontSize: "14px",
     offsetY: 0
   },
   dataLabels: {
     enabled: true,
-    formatter: (val: number) => Math.round(val) + '%'
+    formatter: (value: number) => `${Math.round(value)}%`
   },
   tooltip: {
     y: {
-      formatter: (val: number) => val.toLocaleString('ru-RU') + ' ₽'
+      formatter: (value: number) => `${value.toLocaleString("ru-RU")} ₽`
     }
   },
   plotOptions: {
     pie: {
       donut: {
-        size: '65%',
+        size: "65%",
         labels: {
           show: true,
           total: {
             show: true,
-            label: 'Всего расходов',
-            fontSize: '16px',
+            label: "Всего расходов",
+            fontSize: "16px",
             fontWeight: 600,
-            formatter: () => props.totalExpenses.toLocaleString('ru-RU') + ' ₽'
+            formatter: () => `${props.totalExpenses.toLocaleString("ru-RU")} ₽`
           }
         }
       }
     }
   },
-  // Адаптивность
   responsive: [
     {
       breakpoint: 768,
       options: {
-        chart: { height: 320 },
+        chart: {height: 320},
         legend: {
-          fontSize: '13px',
-          position: 'bottom'
+          fontSize: "13px",
+          position: "bottom"
         },
         plotOptions: {
           pie: {
             donut: {
-              size: '60%',
+              size: "60%",
               labels: {
                 total: {
-                  fontSize: '14px'
+                  fontSize: "14px"
                 }
               }
             }
@@ -96,20 +90,20 @@ const chartOptions = computed(() => ({
       options: {
         chart: {
           height: 300,
-          width: '100%'
+          width: "100%"
         },
         legend: {
-          fontSize: '12px',
-          position: 'bottom'
+          fontSize: "12px",
+          position: "bottom"
         },
         plotOptions: {
           pie: {
             donut: {
-              size: '55%',
+              size: "55%",
               labels: {
                 total: {
-                  fontSize: '12px',
-                  label: 'Всего'
+                  fontSize: "12px",
+                  label: "Всего"
                 }
               }
             }
@@ -118,7 +112,7 @@ const chartOptions = computed(() => ({
         dataLabels: {
           enabled: true,
           style: {
-            fontSize: '10px'
+            fontSize: "10px"
           }
         }
       }
@@ -167,7 +161,6 @@ const chartOptions = computed(() => ({
   font-size: 16px;
 }
 
-/* Адаптивность */
 @media (max-width: 768px) {
   .expenses-chart {
     padding: 16px;

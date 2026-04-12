@@ -1,16 +1,16 @@
 <script setup lang="ts">
+import {ref} from "vue"
 import type {Transaction} from "@/types.ts"
 import {useTransactionsStore} from "@/stores/transactions.ts"
-import {categories} from "@/lib/categories.ts"
-import {ref} from "vue"
 import ModalWindow from "@/components/UI/ModalWindow.vue"
 import EditTransactionForm from "@/components/UI/Forms/EditTransactionForm.vue"
 import BaseButton from "@/components/Base/BaseButton.vue"
 
 const props = defineProps<{
-  transaction: Transaction;
+  transaction: Transaction
 }>()
 
+const store = useTransactionsStore()
 const isEditing = ref(false)
 
 function handleEdit() {
@@ -21,14 +21,8 @@ function closeEdit() {
   isEditing.value = false
 }
 
-const store = useTransactionsStore()
-
-function handleDelete() {
-  store.deleteTransaction(props.transaction.id)
-}
-
-function categoryTitleMapper(id: string) {
-  return categories.find(category => category.id === id)?.name
+async function handleDelete() {
+  await store.deleteTransaction(props.transaction.id)
 }
 </script>
 
@@ -45,7 +39,7 @@ function categoryTitleMapper(id: string) {
         />
         <span class="type-text">
           {{ props.transaction.isIncome ? "Доход" : "Расход" }} |
-          {{ categoryTitleMapper(props.transaction.categoryId) }}
+          {{ store.categoryNameById(props.transaction.categoryId) }}
         </span>
       </div>
 
@@ -65,14 +59,15 @@ function categoryTitleMapper(id: string) {
 
       <div class="crud">
         <BaseButton @click="handleEdit" variant="icon" class="button">
-          <img class="remove-icon" src="/edit.png" alt="Редактировать"/>
+          <img class="remove-icon" src="/edit.png" alt="Редактировать">
         </BaseButton>
         <BaseButton @click="handleDelete" variant="icon" class="button">
-          <img class="remove-icon" src="/trash-can.png" alt="Удалить"/>
+          <img class="remove-icon" src="/trash-can.png" alt="Удалить">
         </BaseButton>
       </div>
     </div>
   </div>
+
   <ModalWindow v-model="isEditing">
     <EditTransactionForm
         :transaction="transaction"
@@ -86,17 +81,14 @@ function categoryTitleMapper(id: string) {
   display: flex;
   justify-content: space-between;
   align-items: center;
-
   width: 100%;
   max-width: 100%;
   min-width: 0;
   box-sizing: border-box;
-
   background: white;
   border-radius: 12px;
   padding: 0 20px;
   min-height: 94px;
-
   border: 1px solid rgba(42, 121, 86, 0.2);
 }
 
@@ -120,10 +112,8 @@ function categoryTitleMapper(id: string) {
   font-weight: 500;
   color: #6b7280;
   letter-spacing: 0.2px;
-
   min-width: 0;
   max-width: 100%;
-
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -150,10 +140,8 @@ function categoryTitleMapper(id: string) {
   color: #1f2937;
   line-height: 1.3;
   margin: 0;
-
   min-width: 0;
   max-width: 100%;
-
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

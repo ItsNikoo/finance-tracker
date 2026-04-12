@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 import DashboardComponent from "@/components/Dashboard/DashboardComponent.vue"
 </script>
 
@@ -9,7 +8,7 @@ import DashboardComponent from "@/components/Dashboard/DashboardComponent.vue"
 </template>
 
 <style scoped>
-.title{
+.title {
   color: #313131;
 }
 </style>

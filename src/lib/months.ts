@@ -1,6 +1,6 @@
 interface Month {
-  title: string;
-  key: number;
+  title: string
+  key: number
 }
 
 export const months: Month[] = [
@@ -16,5 +16,4 @@ export const months: Month[] = [
   {title: "Октябрь", key: 10},
   {title: "Ноябрь", key: 11},
   {title: "Декабрь", key: 12}
-
 ]

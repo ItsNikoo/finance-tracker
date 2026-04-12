@@ -1,40 +1,39 @@
 <script setup lang="ts">
-import {ref, computed} from 'vue'
-import ChartToggle from '@/components/UI/ChartToggle.vue'
-import ExpencesPieChart from '@/components/Charts/ExpencesPieChart.vue'
-import ExpencesColumnChart from '@/components/Charts/ExpencesColumnChart.vue'
+import {computed, ref} from "vue"
+import ChartToggle from "@/components/UI/ChartToggle.vue"
+import ExpencesPieChart from "@/components/Charts/ExpencesPieChart.vue"
+import ExpencesColumnChart from "@/components/Charts/ExpencesColumnChart.vue"
 import {useTransactionsStore} from "@/stores/transactions.ts"
 import type {Transaction} from "@/types.ts"
-import {categories} from "@/lib/categories.ts"
 
 const store = useTransactionsStore()
 const isPie = ref(false)
 
 const expensesByCategory = computed(() => {
-  const expenseMap = new Map<string, number>()
+  const expenseMap = new Map<number, number>()
 
-  store.filteredTransactions.forEach((t: Transaction) => {
-    if (!t.isIncome && t.categoryId && t.amount > 0) {
-      const current = expenseMap.get(t.categoryId) || 0
-      expenseMap.set(t.categoryId, current + t.amount)
+  store.filteredTransactions.forEach((transaction: Transaction) => {
+    if (!transaction.isIncome && transaction.amount > 0) {
+      const current = expenseMap.get(transaction.categoryId) || 0
+      expenseMap.set(transaction.categoryId, current + transaction.amount)
     }
   })
+
   return expenseMap
 })
 
 const chartData = computed(() => {
-  const labels = Array.from(expensesByCategory.value.keys()).map(catId => {
-    const cat = categories.find(c => c.id === catId)
-    return cat ? cat.name : catId
-  })
+  const labels = Array.from(expensesByCategory.value.keys()).map(categoryId =>
+    store.categoryNameById(categoryId)
+  )
 
   const values = Array.from(expensesByCategory.value.values())
 
   return {labels, values}
 })
 
-const CurrentChart = computed(() =>
-    isPie.value ? ExpencesPieChart : ExpencesColumnChart
+const currentChart = computed(() =>
+  isPie.value ? ExpencesPieChart : ExpencesColumnChart
 )
 </script>
 
@@ -44,7 +43,7 @@ const CurrentChart = computed(() =>
       <div>
         <h3 class="card-title">Структура расходов</h3>
         <p class="card-subtitle">
-          Нажмите на категорию, чтобы посмотреть подробнее
+          Нажмите на категорию, чтобы посмотреть операции подробнее
         </p>
       </div>
 
@@ -54,12 +53,12 @@ const CurrentChart = computed(() =>
     </div>
 
     <div class="chart-type">
-      {{ isPie ? 'Круговая диаграмма' : 'Столбчатая диаграмма' }}
+      {{ isPie ? "Круговая диаграмма" : "Столбчатая диаграмма" }}
     </div>
 
     <div class="chart-wrapper">
       <component
-          :is="CurrentChart"
+          :is="currentChart"
           :labels="chartData.labels"
           :values="chartData.values"
           :total-expenses="store.periodExpenses"
@@ -103,7 +102,6 @@ const CurrentChart = computed(() =>
   color: #2A7956;
   margin-bottom: 10px;
 }
-
 
 .chart-wrapper {
   width: 100%;

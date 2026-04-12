@@ -1,53 +1,74 @@
 <script setup lang="ts">
 import {computed, ref, watch} from "vue"
-import type {Transaction} from "@/types.ts"
-import {categories} from "@/lib/categories.ts"
 import {useTransactionsStore} from "@/stores/transactions.ts"
 import BaseInput from "@/components/Base/BaseInput.vue"
 import BaseSelect from "@/components/Base/BaseSelect.vue"
 import BaseButton from "@/components/Base/BaseButton.vue"
 
-const form = ref<Omit<Transaction, "id" | "date">>({
-  title: '',
+const store = useTransactionsStore()
+
+const form = ref({
+  title: "",
   amount: 0,
   isIncome: false,
-  categoryId: ''
+  categoryId: "" as number | ""
 })
 
 const error = ref<string | null>(null)
 
-const store = useTransactionsStore()
-
-const availableCategories = computed(() => {
-  return categories.filter(category =>
-      form.value.isIncome
-          ? category.type === 'income'
-          : category.type === 'expense'
+const availableCategories = computed(() =>
+  store.categories.filter(category =>
+    form.value.isIncome
+      ? category.type === "income"
+      : category.type === "expense"
   )
-})
-
-watch(
-    () => form.value.isIncome,
-    () => form.value.categoryId = ''
 )
 
-function handleSubmit() {
+watch(
+  () => form.value.isIncome,
+  () => {
+    form.value.categoryId = ""
+  }
+)
+
+async function handleSubmit() {
   if (form.value.title.trim() === "") {
-    error.value = "Выберите описание транзакции"
+    error.value = "Введите описание транзакции"
     return
   }
+
   if (form.value.amount <= 0) {
     error.value = "Сумма транзакции должна быть больше 0"
     return
   }
-  if (!form.value.categoryId) {
+
+  if (form.value.categoryId === "") {
     error.value = "Выберите категорию"
     return
   }
 
-  store.addTransaction({...form.value, date: new Date().toISOString().split('T')[0]!})
-  error.value = null
-  form.value = {title: "", amount: 0, isIncome: false, categoryId: ''}
+  try {
+    error.value = null
+
+    await store.addTransaction({
+      title: form.value.title,
+      amount: form.value.amount,
+      isIncome: form.value.isIncome,
+      categoryId: form.value.categoryId,
+      date: new Date().toISOString().split("T")[0]!
+    })
+
+    form.value = {
+      title: "",
+      amount: 0,
+      isIncome: false,
+      categoryId: ""
+    }
+  } catch (submitError) {
+    error.value = submitError instanceof Error
+      ? submitError.message
+      : "Не удалось сохранить транзакцию"
+  }
 }
 </script>
 
@@ -76,19 +97,19 @@ function handleSubmit() {
       </BaseSelect>
 
       <BaseSelect v-model="form.categoryId">
-        <option value="" disabled selected>Выберите категорию</option>
+        <option value="" disabled>Выберите категорию</option>
         <option
-            v-for="c in availableCategories"
-            :key="c.id"
-            :value="c.id"
+            v-for="category in availableCategories"
+            :key="category.id"
+            :value="category.id"
         >
-          {{ c.name }}
+          {{ category.name }}
         </option>
       </BaseSelect>
 
       <p class="error-alert">{{ error }}</p>
 
-      <BaseButton @click="handleSubmit()" full-width>
+      <BaseButton @click="handleSubmit" full-width>
         Зафиксировать
       </BaseButton>
     </div>
@@ -106,7 +127,6 @@ function handleSubmit() {
   display: flex;
   flex-direction: column;
   gap: 10px;
-
   width: 100%;
   max-width: 420px;
 }

@@ -1,17 +1,17 @@
 <script setup lang="ts">
+import {ref} from "vue"
 import FormComponent from "@/components/UI/Forms/FormComponent.vue"
 import BalanceInfoWidget from "@/components/Dashboard/BalanceInfoWidget.vue"
 import TotalBalanceWidget from "@/components/Dashboard/TotalBalanceWidget.vue"
 import {useTransactionsStore} from "@/stores/transactions.ts"
 import MonthToggle from "@/components/UI/MonthToggle.vue"
 import LimitsWidget from "@/components/Dashboard/Limits/LimitsWidget.vue"
-import {ref} from "vue"
 import ModalWindow from "@/components/UI/ModalWindow.vue"
 import TransactionList from "@/components/Dashboard/Transactions/TransactionList.vue"
 import BaseButton from "@/components/Base/BaseButton.vue"
 
 const store = useTransactionsStore()
-const isModalOpen = ref<boolean>(false)
+const isModalOpen = ref(false)
 </script>
 
 <template>
@@ -26,13 +26,15 @@ const isModalOpen = ref<boolean>(false)
       <ModalWindow v-model="isModalOpen">
         <FormComponent/>
       </ModalWindow>
+
       <TotalBalanceWidget :balance="store.periodBalance"/>
       <BalanceInfoWidget :title="'Доход'" :amount="store.periodIncome" :isIncome="true"/>
-      <BalanceInfoWidget :title="'Трат'" :amount="store.periodExpenses" :isIncome="false"/>
+      <BalanceInfoWidget :title="'Расход'" :amount="store.periodExpenses" :isIncome="false"/>
     </div>
 
     <div class="dashboard-row bottom-row">
-      <TransactionList :title="'Транзакции'" :only-expences="false" />
+      <TransactionList :title="'Транзакции'" :only-expences="false"/>
+
       <div>
         <h3 class="container-title">Лимиты</h3>
         <LimitsWidget/>

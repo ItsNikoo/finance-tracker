@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed} from 'vue'
+import {computed} from "vue"
 import {useTransactionsStore} from "@/stores/transactions.ts"
 
 const props = defineProps<{
@@ -11,28 +11,24 @@ const props = defineProps<{
 const store = useTransactionsStore()
 
 const chartSeries = computed(() => [{
-  name: 'Расходы',
+  name: "Расходы",
   data: props.values
 }])
 
 const chartOptions = computed(() => ({
-  colors: ['#2A7956'],
+  colors: ["#2A7956"],
   chart: {
     height: 350,
-    type: 'bar',
-    toolbar: { show: false },
+    type: "bar",
+    toolbar: {show: false},
     events: {
       dataPointSelection: (
-          _event: MouseEvent,
-          _chartContext: unknown,
-          config: { dataPointIndex: number }
+        _event: MouseEvent,
+        _chartContext: unknown,
+        config: { dataPointIndex: number }
       ) => {
-        const index = config.dataPointIndex
-        const category = props.labels[index]
-
-        if (!category) return
-
-        if (category){
+        const category = props.labels[config.dataPointIndex]
+        if (category) {
           store.setSelectedCategory(category)
         }
       }
@@ -41,59 +37,58 @@ const chartOptions = computed(() => ({
   labels: props.labels,
   xaxis: {
     categories: props.labels,
-    position: 'bottom',
+    position: "bottom",
     axisBorder: {show: false},
     axisTicks: {show: false},
     labels: {
       rotate: -45,
       rotateAlways: false,
       style: {
-        fontSize: '12px'
+        fontSize: "12px"
       }
     }
   },
   yaxis: {
     labels: {
-      formatter: (val: number) => val.toLocaleString('ru-RU') + ' ₽'
+      formatter: (value: number) => `${value.toLocaleString("ru-RU")} ₽`
     }
   },
   dataLabels: {
     enabled: true,
-    formatter: (val: number) => Math.round(val).toLocaleString('ru-RU') + ' ₽',
+    formatter: (value: number) => `${Math.round(value).toLocaleString("ru-RU")} ₽`,
     offsetY: -20,
     style: {
-      fontSize: '13px',
-      colors: ['#304758']
+      fontSize: "13px",
+      colors: ["#304758"]
     }
   },
   plotOptions: {
     bar: {
       borderRadius: 8,
-      dataLabels: {position: 'top'},
-      columnWidth: '60%'
+      dataLabels: {position: "top"},
+      columnWidth: "60%"
     }
   },
   legend: {show: false},
   tooltip: {
     y: {
-      formatter: (val: number) => val.toLocaleString('ru-RU') + ' ₽'
+      formatter: (value: number) => `${value.toLocaleString("ru-RU")} ₽`
     }
   },
-  // Адаптивность
   responsive: [
     {
       breakpoint: 768,
       options: {
         chart: {height: 300},
         plotOptions: {
-          bar: {columnWidth: '70%'}
+          bar: {columnWidth: "70%"}
         },
         dataLabels: {
-          style: {fontSize: '11px'}
+          style: {fontSize: "11px"}
         },
         xaxis: {
           labels: {
-            style: {fontSize: '10px'},
+            style: {fontSize: "10px"},
             rotate: -45
           }
         }
@@ -104,14 +99,14 @@ const chartOptions = computed(() => ({
       options: {
         chart: {height: 280},
         plotOptions: {
-          bar: {columnWidth: '80%'}
+          bar: {columnWidth: "80%"}
         },
         dataLabels: {
           enabled: false
         },
         xaxis: {
           labels: {
-            style: {fontSize: '9px'}
+            style: {fontSize: "9px"}
           }
         }
       }
@@ -160,7 +155,6 @@ const chartOptions = computed(() => ({
   font-size: 16px;
 }
 
-/* Адаптивность */
 @media (max-width: 768px) {
   .expenses-chart {
     padding: 16px;

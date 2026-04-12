@@ -1,158 +1,90 @@
 <script setup lang="ts">
-import {ref, watch} from 'vue'
-import {months} from '@/lib/months.ts'
+import {computed} from "vue"
+import BaseSelect from "@/components/Base/BaseSelect.vue"
+import {months} from "@/lib/months.ts"
 import {useTransactionsStore} from "@/stores/transactions.ts"
 
 const store = useTransactionsStore()
-const selected = ref<number | "all">(getCurrentMonth())
 
-watch(selected,
-    () => store.selectedMonth = selected.value,
-    {immediate: true})
+const monthOptions = computed(() => [
+  {label: "Все периоды", value: "all" as const},
+  ...months.map(month => ({label: month.title, value: month.key as number}))
+])
 
-function getCurrentMonth() {
-  const date = new Date()
-  return date.getMonth() + 1
-}
-
-function select(value: number | "all") {
+function handleChange(value: number | "all" | undefined) {
+  if (value === undefined) return
   store.setSelectedMonth(value)
-  selected.value = value
 }
 </script>
 
 <template>
-  <div class="month-toggle">
-    <button
-        v-for="m in months"
-        :key="m.key"
-        class="month-btn"
-        :class="{ active: selected === m.key }"
-        @click="select(m.key)"
-    >
-      {{ m.title }}
-    </button>
+  <div class="month-filter">
+    <div class="month-copy">
+      <span class="month-label">Период</span>
+      <p class="month-description">Выберите месяц для просмотра аналитики и списка операций</p>
+    </div>
 
-    <button
-        class="month-btn all"
-        :class="{ active: selected === 'all' }"
-        @click="select('all')"
-    >
-      Все
-    </button>
+    <div class="month-control">
+      <BaseSelect
+          :model-value="store.selectedMonth"
+          @update:model-value="handleChange"
+      >
+        <option
+            v-for="option in monthOptions"
+            :key="option.value"
+            :value="option.value"
+        >
+          {{ option.label }}
+        </option>
+      </BaseSelect>
+    </div>
   </div>
-  <select
-      class="month-select"
-      :value="selected"
-      @change="select(($event.target as HTMLSelectElement).value === 'all' ? 'all' : Number(($event.target as HTMLSelectElement).value))">
-    <option
-        v-for="m in months"
-        :key="m.key"
-        :value="m.key"
-        :selected="selected === m.key"
-        class="month-option"
-    >
-      {{ m.title }}
-    </option>
-    <option value="all" :selected="selected === 'all'">Все</option>
-  </select>
 </template>
 
 <style scoped>
-.month-toggle {
+.month-filter {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px 12px;
-  padding: 12px 0;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(42, 121, 86, 0.08), rgba(42, 121, 86, 0.03));
+  border: 1px solid rgba(42, 121, 86, 0.12);
 }
 
-.month-btn {
-  padding: 8px 16px;
-  font-size: 0.95rem;
-  font-weight: 500;
-  border: none;
-  cursor: pointer;
-  transition: all 0.18s ease;
-  white-space: nowrap;
-  border-radius: 5px;
+.month-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.month-btn:hover {
-  background-color: #d9d9d9;
+.month-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #2A7956;
 }
 
-.month-btn.active {
-  background-color: #2A7956;
-  color: white;
-  border-color: #3b82f6;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+.month-description {
+  color: #4b5563;
+  font-size: 14px;
 }
 
-.month-btn.all {
-  background-color: #6b7280;
-  color: white;
-  border-color: #6b7280;
+.month-control {
+  width: min(100%, 240px);
+  flex-shrink: 0;
 }
 
-.month-btn.all.active {
-  background-color: #4b5563;
-  border-color: #4b5563;
-}
-
-.month-select {
-  display: none;
-  width: 100%;
-  padding: 10px;
-  font-size: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  background-color: white;
-  margin: 12px 0;
-  cursor: pointer;
-}
-
-.month-select:hover {
-  border-color: #2A7956;
-}
-
-.month-select:focus {
-  outline: none;
-  border: 2px solid #2A7956;
-}
-
-
-/* ──────────────────────────────────────────────
-   Адаптивность
-─────────────────────────────────────────────── */
-
-@media (max-width: 768px) {
-  .month-toggle {
-    justify-content: flex-start;
-    padding: 12px 4px;
-    gap: 6px 10px;
-    display: none;
+@media (max-width: 700px) {
+  .month-filter {
+    flex-direction: column;
+    align-items: stretch;
   }
 
-  .month-select{
-    display: flex;
-  }
-
-  .month-btn {
-    padding: 7px 14px;
-    font-size: 0.9rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .month-toggle {
-    gap: 6px 8px;
-  }
-
-  .month-btn {
-    padding: 6px 12px;
-    font-size: 0.85rem;
+  .month-control {
+    width: 100%;
   }
 }
 </style>
